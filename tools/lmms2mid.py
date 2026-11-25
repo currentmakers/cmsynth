@@ -60,6 +60,14 @@ PATCHES = {
                     osc1_level=0.9, osc2_level=0.25, cutoff=950, emphasis=0.1, contour=0.1, kbd=3,
                     f_attack=0.001, f_decay=0.03, f_sustain=0.0, l_attack=0.012, l_decay=0.035, l_sustain=0.0,
                     decay_sw=1, volume=1.0),
+    # Bowed string leads: a soft attack and a short release that joins legato notes
+    'violin': dict(osc1_range="8'", osc1_wave='saw', osc2_range="8'", osc2_wave='saw', osc2_detune=0.08,
+                   osc1_level=0.7, osc2_level=0.6, cutoff=1400, emphasis=0.15, contour=0.25, kbd=2,
+                   f_attack=0.04, f_decay=0.5, f_sustain=0.6, l_attack=0.03, l_decay=0.25, l_sustain=0.85,
+                   decay_sw=1),
+    'cello': dict(osc1_range="8'", osc1_wave='saw', osc2_range="16'", osc2_wave='tri', osc2_level=0.4,
+                  osc1_level=0.8, cutoff=500, emphasis=0.1, contour=0.3, kbd=1, f_attack=0.05, f_decay=0.6,
+                  f_sustain=0.6, l_attack=0.04, l_decay=0.35, l_sustain=0.9, decay_sw=1),
 }
 
 # Drum kit: each kind of drum on its own channel, (patch, note or None to keep the note)
@@ -92,7 +100,7 @@ LEAD_IN = 1.0
 PATCH_SPACING = 0.05
 
 # Per project overrides: track name -> patch name, or (patch name, extra settings).
-# '_level' overrides SONG_LEVEL.
+# '_level' overrides SONG_LEVEL, '_name' names the MIDI file.
 SONGS = {
     'popcorn2': {
         '_level': 0.4,
@@ -103,6 +111,14 @@ SONGS = {
         'Arpeggio': 'pluck',
         'End Part': 'reed',
         'High Note': 'lead',
+    },
+    # Three violins in canon, each with its own colour and place, over the cello's ground bass
+    'pachalbel canon in d - 4 voices': {
+        '_name': 'canon',
+        'Track 1': ('violin', dict(pan=-0.6)),
+        'Track 2': ('violin', dict(osc2_wave='wide', osc2_detune=-0.06, cutoff=1200, pan=0.6)),
+        'Track 3': ('violin', dict(osc1_wave='trisaw', cutoff=1700, emphasis=0.25, pan=0.0)),
+        'Track 4': 'cello',
     },
 }
 
@@ -208,7 +224,7 @@ def convert(path):
         pname, extra = spec if isinstance(spec, tuple) else (spec, {})
         p = {**PATCHES[pname], **extra}
         level = p.pop('volume', 0.8)
-        send_patch(ch, {**p, 'volume': song_level * level * vol / 100, 'pan': pan / 100})
+        send_patch(ch, {**p, 'volume': song_level * level * vol / 100, 'pan': p.get('pan', pan / 100)})
         for t, length, key, v in notes:
             seq.note(sec(t), ch, key, length / tps, vel(v))
         # Volume automation -> CC 7
@@ -225,6 +241,7 @@ def main():
         sys.exit(__doc__)
     src = sys.argv[1]
     stem = os.path.splitext(os.path.basename(src))[0].lower()
+    stem = SONGS.get(stem, {}).get('_name', stem)
     out = sys.argv[2] if len(sys.argv) > 2 else os.path.join(
         os.path.dirname(os.path.abspath(__file__)), '..', 'midi', stem + '.mid')
     seq, length, report, bpm = convert(src)
