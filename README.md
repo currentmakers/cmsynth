@@ -123,4 +123,5 @@ If the Synth dropdown stays on "No MIDI output":
 
 ## License
 
-See [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE). The STM32 HAL, CMSIS and TinyUSB files in
+`examples/` and `lib/` keep their own licenses.
