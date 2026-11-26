@@ -12,11 +12,17 @@
  *
  ******************************************************************************
  *
- * Same structure as the STM32F407 example so the two compare directly: one
- * core does everything. The DMA interrupt says which half of the I2S buffer
- * to refill and the main loop renders it with synth_process(), runs TinyUSB
- * (MIDI goes straight into the synth) and prints a status line every second.
- * Core 1 is not used yet.
+ * Same structure as the STM32F407 example: the DMA interrupt says which half
+ * of the I2S buffer to refill, the main loop renders it, runs TinyUSB (MIDI
+ * goes straight into the synth) and prints a status line every second.
+ *
+ * Rendering is split over both cores: core 0 renders the even voices, core 1
+ * the odd ones, each into its own mix, and core 0 adds them up. Core 1 only
+ * runs while core 0 waits for it inside render_block(), so MIDI (handled by
+ * core 0 between blocks) never changes a voice while it is being rendered.
+ *
+ * The system clock is 320 MHz with the core voltage at 1.30 V (overclocked,
+ * the RP2350 is rated for 150 MHz at 1.10 V).
  */
 
 #include <stdio.h>
@@ -31,6 +37,8 @@
 #include "hardware/structs/m33.h"
 #include "hardware/sync.h"
 #include "hardware/uart.h"
+#include "hardware/vreg.h"
+#include "pico/multicore.h"
 #include "pico/stdio/driver.h"
 #include "pico/stdlib.h"
 
@@ -209,16 +217,46 @@ static void i2s_init(uint32_t sample_rate) {
     dma_channel_start(dma_chan_a);
 }
 
-// synth_process() writes left, right int16 pairs; the PIO sends the upper half
-// word first, so swap the halves to put left there
-static void render_block(int16_t *buf) {
-    synth_process(buf);
+/*
+ * Rendering on both cores
+ */
+
+#define SYNTH_CORES 2
+
+static synth_mix_t mixes[SYNTH_CORES];
+
+// Core 1: wait for a block, render its part of the voices, reply with the
+// cycles it took
+static void core1_main(void) {
+    cycle_counter_init(); // Each core has its own DWT
+    while (true) {
+        multicore_fifo_pop_blocking();
+        uint32_t start = cycle_counter();
+        synth_render(&mixes[1], 1, SYNTH_CORES);
+        multicore_fifo_push_blocking(cycle_counter() - start);
+    }
+}
+
+// synth_block_end() writes left, right int16 pairs; the PIO sends the upper
+// half word first, so swap the halves to put left there. Returns core 1's
+// cycles.
+static uint32_t render_block(int16_t *buf) {
+    synth_block_begin();
+    multicore_fifo_push_blocking(0); // Go, core 1
+    synth_render(&mixes[0], 0, SYNTH_CORES);
+    uint32_t core1_cycles = multicore_fifo_pop_blocking();
+    synth_block_end(buf, mixes, SYNTH_CORES);
+
     uint32_t *frame = (uint32_t *)buf;
     for (int i = 0; i < I2S_DMA_BUFFER_FRAMES; i++)
         frame[i] = (frame[i] << 16) | (frame[i] >> 16);
+    return core1_cycles;
 }
 
 int main(void) {
+    // Raise the core voltage before the clock
+    vreg_set_voltage(VREG_VOLTAGE_1_30);
+    busy_wait_us(1000);
     set_sys_clock_khz(SYS_CLOCK_KHZ, true);
 
     debug_uart_init();
@@ -226,7 +264,8 @@ int main(void) {
     gpio_init(PICO_DEFAULT_LED_PIN);
     gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
 
-    printf("\n\n\ncmsynth on the RP2354, Arm Cortex-M33 at %lu MHz\n", clock_get_hz(clk_sys) / 1000000);
+    printf("\n\n\ncmsynth on the RP2354, Arm Cortex-M33 at %lu MHz, %d voices on %d cores\n",
+           clock_get_hz(clk_sys) / 1000000, MAX_VOICES, SYNTH_CORES);
 
     cycle_counter_init();
 
@@ -240,6 +279,8 @@ int main(void) {
 #endif
     synth_init();
 
+    multicore_launch_core1(core1_main);
+
     i2s_init(SAMPLE_FREQ);
 
     tusb_init();
@@ -247,6 +288,7 @@ int main(void) {
     uint32_t perf_cycles_sum = 0;
     uint32_t perf_cycles_max = 0;
     uint32_t perf_blocks = 0;
+    uint32_t perf_core1_sum = 0;
     uint32_t loop_cnt = 0;
     uint32_t next_blink = LED_DELAY;
     uint32_t next_tick = TICK_DELAY;
@@ -257,7 +299,7 @@ int main(void) {
             int16_t *buf = dma_buffer_to_fill;
             dma_buffer_to_fill = NULL;
             uint32_t start = cycle_counter();
-            render_block(buf);
+            perf_core1_sum += render_block(buf);
             uint32_t cycles = cycle_counter() - start;
             perf_cycles_sum += cycles;
             if (cycles > perf_cycles_max)
@@ -276,13 +318,17 @@ int main(void) {
         }
 
         if (now >= next_tick) {
+            // cpu: time from start to end of a block (core 0, including the
+            // wait for core 1), core1: core 1's own rendering
             uint32_t avg = perf_blocks ? perf_cycles_sum / perf_blocks : 0;
-            printf("Tick %lu (loop=%lu) voices=%d cpu avg=%lu.%lu%% max=%lu.%lu%% (%lu/%lu cycles) overruns=%lu\n",
+            uint32_t avg1 = perf_blocks ? perf_core1_sum / perf_blocks : 0;
+            printf("Tick %lu (loop=%lu) voices=%d cpu avg=%lu.%lu%% max=%lu.%lu%% (%lu/%lu cycles) core1=%lu.%lu%% overruns=%lu\n",
                    now / 1000, loop_cnt, synth_active_voices(),
                    avg * 100 / block_budget, (avg * 1000 / block_budget) % 10,
                    perf_cycles_max * 100 / block_budget, (perf_cycles_max * 1000 / block_budget) % 10,
-                   perf_cycles_max, block_budget, dma_overruns);
-            perf_cycles_sum = perf_cycles_max = perf_blocks = 0;
+                   perf_cycles_max, block_budget,
+                   avg1 * 100 / block_budget, (avg1 * 1000 / block_budget) % 10, dma_overruns);
+            perf_cycles_sum = perf_cycles_max = perf_blocks = perf_core1_sum = 0;
             loop_cnt = 0;
             next_tick = now + TICK_DELAY;
         }

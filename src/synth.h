@@ -143,6 +143,20 @@ void synth_init(void);
 // Render SYNTH_BLOCK_SIZE interleaved stereo 16-bit frames into out
 void synth_process(int16_t *out);
 
+// synth_process() in steps, for rendering on several cores. synth_block_begin()
+// prepares the block (shared noise), then each core calls synth_render() for
+// its part (voices part, part + parts, ...) into its own mix, and
+// synth_block_end() adds the mixes and converts to 16-bit. No MIDI may be
+// handled between synth_block_begin() and the end of the last synth_render().
+typedef struct {
+    float l[SYNTH_BLOCK_SIZE];
+    float r[SYNTH_BLOCK_SIZE];
+} synth_mix_t;
+
+void synth_block_begin(void);
+void synth_render(synth_mix_t *mix, int part, int parts);
+void synth_block_end(int16_t *out, const synth_mix_t *mixes, int count);
+
 // channel is 0-15 (MIDI channel 1-16)
 void synth_note_on(uint8_t channel, uint8_t note, uint8_t velocity);
 void synth_note_off(uint8_t channel, uint8_t note);

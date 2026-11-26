@@ -99,6 +99,8 @@ typedef struct {
     float G;                // Ladder one-pole coefficient g / (1 + g)
     float dG;               // Per sample change of G (smooths cutoff changes)
     float inv_den;          // 1 / (1 + k * G^4) at the control step
+
+    uint32_t rng;           // Noise for the modulation source (per voice, so cores don't share it)
 } voice_t;
 
 typedef struct {
@@ -213,13 +215,17 @@ static inline float note_to_freq(float note) {
     return 440.0f * fast_exp2f((note - 69.0f) * (1.0f / 12.0f));
 }
 
-static inline uint32_t xorshift32(void) {
-    uint32_t x = noise_seed;
+static inline uint32_t xorshift32_step(uint32_t *seed) {
+    uint32_t x = *seed;
     x ^= x << 13;
     x ^= x >> 17;
     x ^= x << 5;
-    noise_seed = x;
+    *seed = x;
     return x;
+}
+
+static inline uint32_t xorshift32(void) {
+    return xorshift32_step(&noise_seed);
 }
 
 /*----------------------------------------------------------------------------
@@ -346,6 +352,8 @@ void synth_patch_reset(uint8_t channel) {
 
 void synth_init(void) {
     memset(voices, 0, sizeof(voices));
+    for (int i = 0; i < MAX_VOICES; i++)
+        voices[i].rng = 0x9E3779B9u * (uint32_t) (i + 1);
     memset(channels, 0, sizeof(channels));
     for (int ch = 0; ch < SYNTH_CHANNELS; ch++) {
         channels[ch].last_note = -1.0f;
@@ -386,7 +394,7 @@ static void voice_control(voice_t *v, const synth_patch_t *p, const channel_stat
     float mod_depth = cs->mod * cs->mod; // Squared for finer control of small amounts
     float mod_src = 0.0f;
     if (mod_depth > 0.0f && (p->osc_mod || p->filter_mod)) {
-        float noise = (float) (int32_t) xorshift32() * (1.0f / 2147483648.0f);
+        float noise = (float) (int32_t) xorshift32_step(&v->rng) * (1.0f / 2147483648.0f);
         float osc3 = osc_sample(p->osc_wave[2], 2, v->phase[2], v->dt[2], v->inv_dt[2]);
         mod_src = (1.0f - p->mod_mix) * osc3 + p->mod_mix * noise;
     }
@@ -546,11 +554,12 @@ static void voice_render(voice_t *v, const float *noise, float *restrict mix_l, 
         v->active = 0;
 }
 
-void synth_process(int16_t *out_buffer) {
-    float mix_l[SYNTH_BLOCK_SIZE] = { 0.0f };
-    float mix_r[SYNTH_BLOCK_SIZE] = { 0.0f };
-    float white[SYNTH_BLOCK_SIZE];
-    float pink[SYNTH_BLOCK_SIZE];
+// Shared noise for the current block (white and Paul Kellet's economy pink
+// filter), filled by synth_block_begin() and read by all voices
+static float noise_white[SYNTH_BLOCK_SIZE];
+static float noise_pink[SYNTH_BLOCK_SIZE];
+
+void synth_block_begin(void) {
     uint8_t need_white = 0, need_pink = 0;
 
     for (int v = 0; v < MAX_VOICES; v++) {
@@ -563,31 +572,49 @@ void synth_process(int16_t *out_buffer) {
         }
     }
 
-    // Shared noise source (white and Paul Kellet's economy pink filter), only when used
+    // Only generated when used
     if (need_white || need_pink) {
         for (int i = 0; i < SYNTH_BLOCK_SIZE; i++) {
             float w = (float) (int32_t) xorshift32() * (1.0f / 2147483648.0f);
-            white[i] = w;
+            noise_white[i] = w;
             if (need_pink) {
                 pink_b0 = 0.99765f * pink_b0 + w * 0.0990460f;
                 pink_b1 = 0.96300f * pink_b1 + w * 0.2965164f;
                 pink_b2 = 0.57000f * pink_b2 + w * 1.0526913f;
-                pink[i] = (pink_b0 + pink_b1 + pink_b2 + w * 0.1848f) * 0.25f;
+                noise_pink[i] = (pink_b0 + pink_b1 + pink_b2 + w * 0.1848f) * 0.25f;
             }
         }
     }
+}
 
-    for (int v = 0; v < MAX_VOICES; v++) {
+void synth_render(synth_mix_t *mix, int part, int parts) {
+    memset(mix, 0, sizeof(*mix));
+    for (int v = part; v < MAX_VOICES; v += parts) {
         if (voices[v].active)
-            voice_render(&voices[v], patches[voices[v].channel].noise_pink ? pink : white, mix_l, mix_r);
+            voice_render(&voices[v], patches[voices[v].channel].noise_pink ? noise_pink : noise_white, mix->l, mix->r);
     }
+}
 
+void synth_block_end(int16_t *out_buffer, const synth_mix_t *mixes, int count) {
     const float gain = master_volume * OUTPUT_GAIN;
 
     for (int i = 0; i < SYNTH_BLOCK_SIZE; i++) {
-        out_buffer[i * 2] = (int16_t) (soft_clip(mix_l[i] * gain) * PCM16_MAX);
-        out_buffer[i * 2 + 1] = (int16_t) (soft_clip(mix_r[i] * gain) * PCM16_MAX);
+        float l = 0.0f, r = 0.0f;
+        for (int m = 0; m < count; m++) {
+            l += mixes[m].l[i];
+            r += mixes[m].r[i];
+        }
+        out_buffer[i * 2] = (int16_t) (soft_clip(l * gain) * PCM16_MAX);
+        out_buffer[i * 2 + 1] = (int16_t) (soft_clip(r * gain) * PCM16_MAX);
     }
+}
+
+void synth_process(int16_t *out_buffer) {
+    synth_mix_t mix;
+
+    synth_block_begin();
+    synth_render(&mix, 0, 1);
+    synth_block_end(out_buffer, &mix, 1);
 }
 
 /*----------------------------------------------------------------------------

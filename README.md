@@ -14,7 +14,7 @@ Wiki: https://stm32world.com/wiki/Polyphonic_MIDI_Synthesizer
   sustain and the decay switch), glide, and oscillator 3 or noise as
   modulation on the mod wheel.
 - 16 MIDI channels, each with its own complete patch, sharing the voices
-  (8 on the STM32F407).
+  (8 on the STM32F407, 32 on the RP2354 with both cores at 320 MHz).
 - Every panel control is a MIDI CC, with 14 bit resolution for cutoff and
   detune.
 - A web panel and keyboard that talks to the synth with Web MIDI.

@@ -28,8 +28,12 @@ set(PICO_PLATFORM rp2350)
 set(PICO_BOARD_HEADER_DIRS "${CMAKE_SOURCE_DIR}/boards/include" CACHE STRING "Extra board header dirs")
 set(PICO_BOARD sl_mcu_rp2354 CACHE STRING "Board type")
 
-# System clock in kHz (150 MHz is the RP2350's rated clock)
-set(SYS_CLOCK_KHZ 150000 CACHE STRING "System clock in kHz")
+# System clock in kHz: overclocked, main.c raises the core voltage to 1.30 V
+# (the RP2350 is rated for 150 MHz)
+set(SYS_CLOCK_KHZ 320000 CACHE STRING "System clock in kHz")
+
+# Voices, rendered on both cores
+set(MAX_VOICES 32 CACHE STRING "Number of synth voices")
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
@@ -56,6 +60,8 @@ target_include_directories(cmsynth PRIVATE
 
 target_compile_definitions(cmsynth PRIVATE
     SYS_CLOCK_KHZ=${SYS_CLOCK_KHZ}
+    MAX_VOICES=${MAX_VOICES}
+    PICO_CORE1_STACK_SIZE=0x1000
 )
 
 target_compile_options(cmsynth PRIVATE
@@ -69,6 +75,8 @@ pico_generate_pio_header(cmsynth ${CMAKE_CURRENT_LIST_DIR}/i2s.pio)
 
 target_link_libraries(cmsynth
     pico_stdlib
+    pico_multicore
+    hardware_vreg
     pico_unique_id
     hardware_dma
     hardware_pio
