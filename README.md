@@ -26,15 +26,17 @@ Wiki: https://stm32world.com/wiki/Polyphonic_MIDI_Synthesizer
 - `examples/` - one firmware project per target board:
   - [`sl_mcu_stm32f407`](examples/sl_mcu_stm32f407) - STM32F407 with the
     PCM5102 audio DAC Streamline blade, STM32CubeIDE project
-- `lib/tinyusb` - TinyUSB (git submodule) for USB MIDI
+  - [`sl_mcu_rp2354`](examples/sl_mcu_rp2354) - RP2354 (Arm Cortex-M33) with
+    the same audio blade, Pico SDK project for VS Code
+- `lib/tinyusb` - TinyUSB (git submodule) for USB MIDI on the STM32 (the RP2354
+  uses the Pico SDK's)
 - `midi/` - demo MIDI files that set up their own patches, see
   [midi/README.md](midi/README.md)
 - `samples/` - recordings of the demos from the line out
 - `web/` - HTML5 panel and keyboard
 - `tools/` - scripts for the demos, recordings and MIDI files (below)
 
-More targets (RP2350 next) will be added as further examples using the same
-`src/`.
+More targets can be added as further examples using the same `src/`.
 
 ## Getting the source
 

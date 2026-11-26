@@ -60,3 +60,7 @@ Release/
 
 # CMSIS-DSP prebuilt library is needed to link the STM32 examples
 !examples/*/Middlewares/Third_Party/ARM_CMSIS/CMSIS/DSP/Lib/GCC/*.a
+
+# Pico SDK build output
+build/
+build_*/

@@ -1,0 +1,39 @@
+;
+; I2S output, 16 bit stereo, for the PCM5102
+;
+; OUT pin  -> SD   (serial data)
+; SET pin  -> LRCK (frame clock, low = left)
+; Side-set -> BCK  (bit clock)
+;
+; Four PIO cycles per bit: data changes while BCK is low, the DAC samples on
+; the rising edge. LRCK changes in the low half of the previous word's LSB, one
+; bit before the MSB, as I2S wants. Each 32 bit FIFO word is one frame, left in
+; the upper 16 bits, MSB first.
+;
+
+.program i2s
+.side_set 1
+
+public entry_point:
+.wrap_target
+    out pins, 1         side 0 [1]  ; Left MSB
+    set x, 13           side 1 [1]
+left_bits:
+    out pins, 1         side 0 [1]  ; Left bits 14..1
+    jmp x-- left_bits   side 1 [1]
+    out pins, 1         side 0      ; Left LSB
+    set pins, 1         side 0      ; LRCK high: right word next
+    nop                 side 1 [1]
+    out pins, 1         side 0 [1]  ; Right MSB
+    set x, 13           side 1 [1]
+right_bits:
+    out pins, 1         side 0 [1]  ; Right bits 14..1
+    jmp x-- right_bits  side 1 [1]
+    out pins, 1         side 0      ; Right LSB
+    set pins, 0         side 0      ; LRCK low: left word next
+    nop                 side 1 [1]
+.wrap
+
+% c-sdk {
+#define I2S_PIO_CYCLES_PER_BIT 4
+%}

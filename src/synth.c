@@ -19,12 +19,16 @@
 
 #include "synth.h"
 
-// Voice state lives in the F407's 64K core coupled RAM (zero wait states, not on the DMA bus)
-#ifdef __arm__
-#define FAST_RAM __attribute__((section(".ccmram")))
+// Where the voice state lives. On the STM32F407 that is the 64K core coupled RAM
+// (zero wait states, not on the DMA bus); other targets can define SYNTH_FAST_RAM.
+#ifndef SYNTH_FAST_RAM
+#if defined(STM32F407xx)
+#define SYNTH_FAST_RAM __attribute__((section(".ccmram")))
 #else
-#define FAST_RAM
+#define SYNTH_FAST_RAM
 #endif
+#endif
+#define FAST_RAM SYNTH_FAST_RAM
 
 #define PI 3.14159265358979323846f
 
