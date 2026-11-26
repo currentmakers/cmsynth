@@ -22,6 +22,20 @@ status line, the other core is not used yet.
 | GPIO 0, 1 | UART0 TX, RX (debug output, 921600 baud) |
 | GPIO 37 | LED |
 
+## Performance
+
+Eight held notes, measured with the DWT cycle counter per 64 frame block:
+
+| | RP2354, 150 MHz | STM32F407, 168 MHz |
+|---|---|---|
+| Default patch, 8 voices | 48% (96k cycles per block) | 53% (119k cycles per block) |
+| Three oscillators, noise, drive, 8 voices | 69% | |
+| Idle (no voices) | 2.1% | |
+
+Per clock cycle the Cortex-M33 does about 20% more work than the F407's
+Cortex-M4, so even at its lower clock the RP2354 renders a block about 10%
+faster, with core 1 still free.
+
 ## Building
 
 The synth source is used straight from [`../../src`](../../src).
