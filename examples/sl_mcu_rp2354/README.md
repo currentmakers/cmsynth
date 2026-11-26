@@ -6,7 +6,7 @@ Streamline blade. The main loop works like the STM32F407 example's, but the
 rendering is split over both cores and the chip is overclocked to 320 MHz,
 which gives 32 voices.
 
-- USB MIDI device (TinyUSB), shows up as "CurrentMakers cmsynth"
+- USB MIDI device (TinyUSB from the Pico SDK), shows up as "CurrentMakers cmsynth"
 - I2S from a PIO state machine fed by two chained DMA channels: 48 kHz, 16 bit
   stereo, 64 frame halves (1.33 ms)
 - 320 MHz system clock with the core voltage raised to 1.30 V (`SYS_CLOCK_KHZ`
@@ -65,10 +65,8 @@ to 8 and render all voices on core 0.
 ## Building
 
 The synth source is not copied into the project: `cmsynth` is a link to
-[`../../src`](../../src) and `tinyusb` a link to `../../lib/tinyusb/src`, so
-both can be edited from this folder. The build uses the repository's TinyUSB
-(`PICO_TINYUSB_PATH`), the same copy as the STM32 example, not the one in the
-Pico SDK, so clone with submodules first (see the [top README](../../README.md)).
+[`../../src`](../../src), so it can be edited from this folder. TinyUSB comes
+with the Pico SDK.
 
 **VS Code**: install the Raspberry Pi Pico extension (the recommended
 extensions are listed in `.vscode/extensions.json`), open this folder and use
