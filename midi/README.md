@@ -38,6 +38,9 @@ projects.
 
 They use up to 16 channels and are dense, so on the STM32F407 (8 voices) a
 lot of notes are stolen. They are meant for the RP2354 with 32 voices.
+Recordings from the RP2354's line out are in [../samples](../samples) under
+the same names (`samples/skiessi-onion.mp3` and so on), with the same
+licences.
 
 ## Playing them
 
