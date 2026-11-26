@@ -4,14 +4,17 @@
 Usage: tools/lmms2mid.py <project.mmpz> [out.mid]
 
 Every instrument track gets its own MIDI channel and a cmsynth patch, sent as
-CCs at the start of the file.  The patch is picked from the track's General
-MIDI program (bass, organ, pad, lead...), or from SONGS below for tracks that
-need something specific.  A drum track (sound font bank 128) is split over
-several channels, one per kind of drum, because a channel only has one patch:
-kick, snare, hats, cymbals and toms each get a drum patch of their own.
+CCs at the start of the file.  The patch is picked from SONGS below for tracks
+that need something specific, otherwise from the track's General MIDI program
+(sound fonts) or, for LMMS's own synths, from the track name and note range.
+Drums (sound font bank 128, or drum samples recognised by their file name) are
+split over several channels, one per kind of drum, because a channel only has
+one patch: kick, snare, hats, cymbals and toms each get a drum patch of their
+own.  Beat/Bassline patterns are expanded where they are placed in the song.
 
-Volume automation on a track becomes CC 7.  Beat/Bassline tracks are not
-converted.  Output goes to midi/<project>.mid by default.
+Volume automation on a track becomes CC 7.  When there are more tracks than
+channels, tracks with the same patch share a channel.  Output goes to
+midi/<project>.mid by default.
 """
 import os
 import sys
@@ -23,7 +26,7 @@ import demos           # noqa: E402
 import make_midis      # noqa: E402  (sets demos.LEVEL for files)
 
 LMMS_TICKS_PER_BEAT = 48             # 192 per 4/4 bar
-LMMS_KEY_OFFSET = 12                 # LMMS key 57 is A4, MIDI note 69
+LMMS_STEP_TICKS = 12                 # A Beat/Bassline step (1/16)
 
 # Patches in demos.patch() units, on top of the firmware defaults
 PATCHES = {
@@ -68,6 +71,10 @@ PATCHES = {
     'cello': dict(osc1_range="8'", osc1_wave='saw', osc2_range="16'", osc2_wave='tri', osc2_level=0.4,
                   osc1_level=0.8, cutoff=500, emphasis=0.1, contour=0.3, kbd=1, f_attack=0.05, f_decay=0.6,
                   f_sustain=0.6, l_attack=0.04, l_decay=0.35, l_sustain=0.9, decay_sw=1),
+    # TB-303 style (LMMS's LB302): one saw through a resonant, snappy filter
+    'acid': dict(osc1_range="8'", osc1_wave='saw', osc2_on=0, cutoff=350, emphasis=0.75, contour=0.7, kbd=1,
+                 f_attack=0.001, f_decay=0.15, f_sustain=0.05, l_attack=0.002, l_decay=0.2, l_sustain=0.8,
+                 decay_sw=0, drive=0.3),
 }
 
 # Drum kit: each kind of drum on its own channel, (patch, note or None to keep the note)
@@ -92,6 +99,20 @@ DRUM_KIND = {35: 'kick', 36: 'kick', 37: 'snare', 38: 'snare', 39: 'snare', 40: 
              41: 'toms', 43: 'toms', 45: 'toms', 47: 'toms', 48: 'toms', 50: 'toms',
              49: 'cymbal', 51: 'cymbal', 52: 'cymbal', 53: 'cymbal', 55: 'cymbal', 57: 'cymbal', 59: 'cymbal'}
 DRUM_LEVEL = dict(kick=0.9, snare=0.6, hats=0.35, cymbal=0.3, toms=0.7)
+# Drum samples by file name, first match wins
+DRUM_SAMPLES = [('kick', ('kick', 'bassdrum', 'kik', 'k_')), ('snare', ('snare', 'clap', 'rim', 'sidestick', 's_')),
+                ('hats', ('hat', 'hh', 'shaker')), ('cymbal', ('crash', 'ride', 'cymbal')),
+                ('toms', ('tom', 'cga', 'conga', 'bongo'))]
+# Fixed notes for drum samples (toms follow the sample's pitch)
+DRUM_SAMPLE_NOTE = dict(kick=33, snare=54, hats=72, cymbal=72)
+# Patches for other samples by file name, None = not converted (effects)
+SAMPLES = [('mute_bass', 'bass'), ('bass', 'bass'), ('string', 'pad'), ('pad', 'pad'), ('chorus', 'pad'),
+           ('piano', 'pluck'), ('instruments/', 'pluck')]
+# Patches for synth tracks by name, first match wins
+NAMES = [('bass', 'bass'), ('pad', 'pad'), ('string', 'pad'), ('choir', 'pad'), ('brass', 'brass'),
+         ('brazz', 'brass'), ('reed', 'reed'), ('pipe', 'reed'), ('flute', 'reed'), ('organ', 'organ'),
+         ('bell', 'pluck'), ('harp', 'pluck'), ('pluck', 'pluck'), ('piano', 'pluck'), ('twinkle', 'pluck'),
+         ('drop', 'pluck'), ('arp', 'pluck'), ('lead', 'lead'), ('square', 'lead'), ('saw', 'lead')]
 
 # Many channels add up: whole song level on top of each track's volume
 SONG_LEVEL = 0.45
@@ -99,8 +120,9 @@ SONG_LEVEL = 0.45
 LEAD_IN = 1.0
 PATCH_SPACING = 0.05
 
-# Per project overrides: track name -> patch name, or (patch name, extra settings).
-# '_level' overrides SONG_LEVEL, '_name' names the MIDI file.
+# Per project overrides: track name -> patch name, or (patch name, extra settings), or 'skip'.
+# The extra settings can include 'transpose' (semitones).  '_level' overrides SONG_LEVEL,
+# '_name' names the MIDI file.
 SONGS = {
     'popcorn2': {
         '_level': 0.4,
@@ -120,6 +142,14 @@ SONGS = {
         'Track 3': ('violin', dict(osc1_wave='trisaw', cutoff=1700, emphasis=0.25, pan=0.0)),
         'Track 4': 'cello',
     },
+    # mute_bass.ds sounds around A2, LMMS plays it 15 semitones up from its base note
+    # Levels matched by recording the line out (peaks around -1 dBFS)
+    'farbro-tectonic': {'_level': 0.8},
+    'esoxlb-cpu': {'_level': 0.8},
+    'socceroos-progress': {'_level': 0.38},
+    'oglsdl-pptrip': {
+        'mute_bass.ds': ('bass', dict(transpose=-24)),
+    },
 }
 
 
@@ -128,6 +158,77 @@ def gm_patch(program):
     family = program // 8
     return {0: 'pluck', 1: 'pluck', 2: 'organ', 3: 'pluck', 4: 'bass', 5: 'pad', 6: 'pad', 7: 'brass',
             8: 'reed', 9: 'reed', 10: 'lead', 11: 'pad'}.get(family, 'pluck')
+
+
+def drum_sample(src):
+    """Kind of drum for a drum sample, or None."""
+    name = src.lower().replace('\\', '/').split('/')[-1]
+    if 'drum' not in src.lower():
+        return None
+    return next((kind for kind, keys in DRUM_SAMPLES if any(k in name for k in keys)), None)
+
+
+def synth_patch(name, plugin, notes):
+    """Patch name for a synth track from its name, plugin and notes."""
+    lname = name.lower()
+    keys = sorted(n[2] for n in notes)
+    median = keys[len(keys) // 2]
+    avg_len = sum(n[1] for n in notes) / len(notes)
+    for key, patch in NAMES:
+        if key in lname:
+            if patch == 'bass' and plugin == 'lb302':
+                return 'acid'
+            if patch == 'pad' and avg_len < LMMS_TICKS_PER_BEAT:
+                return 'synthbass' if median < 48 else 'pluck'   # Short notes, not really a pad
+            return patch
+    if plugin == 'lb302':
+        return 'acid'
+    if median < 48:
+        return 'bass'
+    if avg_len >= LMMS_TICKS_PER_BEAT and median >= 55:
+        return 'pad'
+    return 'lead'
+
+
+def track_transpose(it):
+    """Semitones to add to an LMMS key: LMMS plays A4 (MIDI 69) on the track's base note, and
+    for TripleOscillator the loudest oscillator's coarse tuning."""
+    shift = 69 - int(it.get('basenote', 57))
+    osc = it.find('instrument/tripleoscillator')
+    if osc is not None:
+        # Loudest, and of equally loud ones the least transposed
+        loudest = max(range(3), key=lambda i: (float(osc.get(f'vol{i}', 0)), -abs(float(osc.get(f'coarse{i}', 0)))))
+        shift += round(float(osc.get(f'coarse{loudest}', 0)))
+    return shift
+
+
+def track_notes(track, placements):
+    """(tick, length, key, volume) for an instrument track. placements is None for a song track,
+    or for a Beat/Bassline track [(pattern index, song tick, length)] where the patterns are placed."""
+    notes = []
+    patterns = track.findall('pattern')
+
+    def add(pat, offset, end=None, steps_len=None):
+        for n in pat.findall('note'):
+            t = offset + int(n.get('pos'))
+            if end is not None and t >= end:
+                continue
+            length = int(n.get('len'))
+            if length <= 0:
+                length = LMMS_STEP_TICKS    # Step (one shot) note
+            notes.append((t, length, int(n.get('key')), float(n.get('vol', 100))))
+
+    if placements is None:
+        for pat in patterns:
+            add(pat, int(pat.get('pos')))
+        return notes
+    for index, pos, length, bb_len in placements:
+        pat = next((p for p in patterns if int(p.get('pos')) == index * 192), None)
+        if pat is None or not pat.findall('note'):
+            continue
+        for rep in range(0, length, bb_len):
+            add(pat, pos + rep, end=pos + length)
+    return notes
 
 
 def load(path):
@@ -179,58 +280,109 @@ def convert(path):
     drum_channels = {}
     report = []
 
-    for track in song.find('trackcontainer').findall('track'):
-        if track.get('type') != '0':
-            continue
+    # All instrument tracks: song tracks, then the Beat/Bassline tracks expanded where placed
+    tracks = []
+    song_tracks = song.find('trackcontainer').findall('track')
+    bb_tracks = [t for t in song_tracks if t.get('type') == '1']
+    bb_container = next((t.find('bbtrack/trackcontainer') for t in bb_tracks
+                         if t.find('bbtrack/trackcontainer') is not None), None)
+    for track in song_tracks:
+        if track.get('type') == '0':
+            tracks.append((track, None))
+    if bb_container is not None:
+        inner = [t for t in bb_container.findall('track') if t.get('type') == '0']
+        placements = []
+        for index, bb in enumerate(bb_tracks):
+            if bb.get('muted') == '1':
+                continue
+            # A Beat/Bassline loops at the length of its longest pattern (16 steps = 192 ticks)
+            steps = [int(p.get('steps', 16)) for t in inner for p in t.findall('pattern')
+                     if int(p.get('pos')) == index * 192]
+            bb_len = max(steps, default=16) * LMMS_STEP_TICKS
+            placements += [(index, int(c.get('pos')), int(c.get('len')), bb_len) for c in bb.findall('bbtco')
+                           if c.get('muted') != '1']
+        tracks += [(t, placements) for t in inner]
+    # Muted tracks are left out, unless everything is muted (a project set up to play elsewhere)
+    if any(t.get('muted') != '1' and track_notes(t, pl) for t, pl in tracks):
+        tracks = [(t, pl) for t, pl in tracks if t.get('muted') != '1']
+
+    channel_of = {}
+    for track, placements in tracks:
         it = track.find('instrumenttrack')
-        notes = []
-        for pat in track.findall('pattern'):
-            pos = int(pat.get('pos'))
-            for n in pat.findall('note'):
-                length = int(n.get('len'))
-                if length > 0:
-                    notes.append((pos + int(n.get('pos')), length, int(n.get('key')) + LMMS_KEY_OFFSET,
-                                  float(n.get('vol', 100))))
-        if not notes:
+        raw = track_notes(track, placements)
+        if not raw:
             continue
         name = track.get('name')
         vol, vol_id = model_value(it, 'vol', 100)
         pan, _ = model_value(it, 'pan', 0)
+        instrument = it.find('instrument')
+        plugin = instrument.get('name') if instrument is not None else ''
         sf2 = it.find('.//sf2player')
         bank = int(sf2.get('bank', 0)) if sf2 is not None else 0
         program = int(sf2.get('patch', 0)) if sf2 is not None else 0
+        afp = it.find('.//audiofileprocessor')
+        sample = afp.get('src', '') if afp is not None else ''
+        shift = track_transpose(it)
+        spec = overrides.get(name)
+        if isinstance(spec, tuple) and 'transpose' in spec[1]:
+            spec = (spec[0], dict(spec[1]))
+            shift += spec[1].pop('transpose')   # Samples: the sample's own pitch is unknown
 
-        def vel(v): return max(1, min(127, round(v * 64 / 100)))
+        def vel(v, scale=1.0): return max(1, min(127, round(v * 64 / 100 * scale)))
 
-        if bank == 128 or overrides.get(name) == 'drums':
-            for t, length, key, v in notes:
-                kind = DRUM_KIND.get(key, 'hats')
-                if kind not in drum_channels:
-                    ch = drum_channels[kind] = 9 + drum_order.index(kind)
-                    p, _ = DRUMS[kind]
-                    send_patch(ch, {**p, 'volume': song_level * DRUM_LEVEL[kind] * vol / 100})
-                ch = drum_channels[kind]
-                note = DRUMS[kind][1] or key
-                seq.note(sec(t), ch, note, length / tps, vel(v))
-            report.append(f'{name}: drums on channels ' +
-                          ', '.join(f'{k} {c + 1}' for k, c in sorted(drum_channels.items(), key=lambda x: x[1])))
+        kind = drum_sample(sample) if plugin == 'audiofileprocessor' else None
+        if bank == 128 or spec == 'drums' or (kind and spec is None):
+            for t, length, key, v in raw:
+                k = kind or DRUM_KIND.get(key + shift, 'hats')
+                if k not in drum_channels:
+                    ch = drum_channels[k] = 9 + drum_order.index(k)
+                    p, _ = DRUMS[k]
+                    # A kit track sets the level in the patch, drum sample tracks (several
+                    # share a channel) put their volume into the velocity
+                    send_patch(ch, {**p, 'volume': song_level * DRUM_LEVEL[k] * (1 if kind else vol / 100)})
+                if kind:
+                    note = DRUM_SAMPLE_NOTE.get(k, key + shift - 24)
+                else:
+                    note = DRUMS[k][1] or key + shift
+                seq.note(sec(t), drum_channels[k], note, length / tps, vel(v, vol / 100 if kind else 1))
+            report.append(f'{name}: drums ({kind or "kit"})')
             continue
 
-        if not free:
-            print(f'{name}: out of MIDI channels, skipped', file=sys.stderr)
+        if spec is None:
+            if plugin == 'audiofileprocessor':
+                spec = next((pt for key, pt in SAMPLES if key in sample.lower()), None)
+                if spec is None:
+                    report.append(f'{name}: sample {sample}, not converted')
+                    continue
+            elif sf2 is not None:
+                spec = gm_patch(program)
+            else:
+                spec = synth_patch(name, plugin, [(t, ln, k + shift, v) for t, ln, k, v in raw])
+        if spec == 'skip':
+            report.append(f'{name}: skipped')
             continue
-        ch = free.pop(0)
-        spec = overrides.get(name, gm_patch(program))
         pname, extra = spec if isinstance(spec, tuple) else (spec, {})
         p = {**PATCHES[pname], **extra}
         level = p.pop('volume', 0.8)
-        send_patch(ch, {**p, 'volume': song_level * level * vol / 100, 'pan': p.get('pan', pan / 100)})
-        for t, length, key, v in notes:
-            seq.note(sec(t), ch, key, length / tps, vel(v))
+        if free:
+            ch = free.pop(0)
+            channel_of.setdefault(pname, ch)
+            send_patch(ch, {**p, 'volume': song_level * level * vol / 100, 'pan': p.get('pan', pan / 100)})
+            shared = ''
+        elif pname in channel_of:
+            ch = channel_of[pname]
+            shared = ' (shared)'
+        else:
+            print(f'{name}: out of MIDI channels, skipped', file=sys.stderr)
+            continue
+        for t, length, key, v in raw:
+            seq.note(sec(t), ch, key + shift, length / tps, vel(v))
         # Volume automation -> CC 7
-        for t, v in automation.get(vol_id, []) if vol_id else []:
+        for t, v in automation.get(vol_id, []) if vol_id and not shared else []:
             seq.at(sec(t), [(0xB0 | ch, 7, demos.lin(song_level * level * v / 100 * demos.LEVEL))])
-        report.append(f'{name}: channel {ch + 1}, {pname} patch, {len(notes)} notes')
+        keys = sorted(k + shift for _, _, k, _ in raw)
+        report.append(f'{name} [{plugin}]: channel {ch + 1}{shared}, {pname} patch, {len(raw)} notes, '
+                      f'median note {keys[len(keys) // 2]}')
 
     end = max(t for t, _ in seq.ev)
     return seq, end, report, bpm

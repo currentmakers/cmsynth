@@ -13,6 +13,32 @@ its own sound no matter what the synth was doing before.
 | `popcorn2.mid` | 1-8, 10-14 | Popcorn, converted from an LMMS project with `tools/lmms2mid.py` (2:34) |
 | `canon.mid` | 1-4 | Pachelbel's Canon in D: three violins in canon (left, right, centre) over the cello, converted from LMMS (11:43) |
 
+### Electronic demos from LMMS
+
+Converted from demo projects that ship with LMMS
+([data/projects/demos](https://github.com/LMMS/lmms/tree/master/data/projects/demos)),
+under the licences their authors gave them. The arrangements for cmsynth are
+modified versions: the original instruments, samples and effects are replaced
+by cmsynth patches.
+
+| File | Original | Author | Licence | Length |
+|------|----------|--------|---------|--------|
+| `farbro-tectonic.mid` | [Tectonic](https://lmms.io/lsp/index.php?action=show&file=1327) | Farbro | [CC BY](https://creativecommons.org/licenses/by/3.0/) | 3:52 |
+| `skiessi-onion.mid` | [Onion](https://lmms.io/lsp/index.php?action=show&file=405) | Skiessi | [CC BY-SA](https://creativecommons.org/licenses/by-sa/3.0/) | 3:28 |
+| `momo64-esp.mid` | [esp](https://lmms.io/lsp/index.php?action=show&file=1534) | Momo64 | [Artistic 2.0](https://opensource.org/licenses/Artistic-2.0) | 5:07 |
+| `oglsdl-pptrip.mid` | [PpTrip](https://lmms.io/lsp/index.php?action=show&file=1156) | Oglsdl | [Artistic 2.0](https://opensource.org/licenses/Artistic-2.0) | 2:16 |
+| `socceroos-progress.mid` | [Progress](https://lmms.io/lsp/index.php?action=show&file=1516) | Socceroos | [Artistic 2.0](https://opensource.org/licenses/Artistic-2.0) | 3:51 |
+| `esoxlb-cpu.mid` | [CPU](https://lmms.io/lsp/index.php?action=show&file=723) | E.SoX (lowbudget) | [Artistic 2.0](https://opensource.org/licenses/Artistic-2.0) | 3:46 |
+
+These files keep their original licences, not the MIT licence of the rest of
+the repository. When you publish a recording, credit the author and the
+licence; recordings of `skiessi-onion.mid` have to be shared under CC BY-SA
+too. The licences are listed in LMMS's `LICENSES.TXT` files next to the
+projects.
+
+They use up to 16 channels and are dense, so on the STM32F407 (8 voices) a
+lot of notes are stolen. They are meant for the RP2354 with 32 voices.
+
 ## Playing them
 
 **Linux** (aplaymidi is in the alsa-utils package):
@@ -41,15 +67,24 @@ file for the synth:
     tools/lmms2mid.py ~/lmms/projects/Popcorn2.mmpz      # writes midi/popcorn2.mid
 
 - Every instrument track gets its own MIDI channel (1-9, 15, 16) and a
-  cmsynth patch chosen from the track's General MIDI program (bass, organ,
-  pad, brass, reed, lead, pluck). Track volume and pan go into the patch.
-- A drum track (sound font bank 128) is split by drum into kick, snare, hats,
-  cymbals and toms on channels 10-14, each with a drum patch made from the
-  noise source and the self-oscillating filter.
+  cmsynth patch (bass, synth bass, acid, organ, pad, brass, reed, lead,
+  pluck). Sound font tracks get one from their General MIDI program; LMMS's
+  own synths (TripleOscillator, LB302, ZynAddSubFX...) from the track name,
+  note range and note lengths; samples from their file name. Track volume and
+  pan go into the patch, and the track's base note and oscillator tuning
+  into the notes.
+- Drums are split by drum into kick, snare, hats, cymbals and toms on
+  channels 10-14, each with a drum patch made from the noise source and the
+  self-oscillating filter. Both sound font drum kits (bank 128) and drum
+  samples (recognised by their file name) are converted.
+- Beat/Bassline patterns are expanded wherever they are placed in the song.
+  Muted tracks are left out.
+- With more tracks than channels, tracks with the same patch share one.
+  Effects samples are not converted.
 - Volume automation becomes CC 7. The patches go out one channel at a time in
   the first second, then the song starts.
 - Tracks that need a specific sound can be given one in `SONGS` in the
   script, by project name and track name.
 
-The synth has 8 voices, so dense songs steal voices. Popcorn2 peaks at 8
-voices and 60% CPU.
+The F407 has 8 voices, so dense songs steal voices. Popcorn2 peaks at 8
+voices and 60% CPU there.

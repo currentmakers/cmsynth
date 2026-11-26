@@ -54,8 +54,11 @@ or run `git submodule update --init` in an existing clone.
 
 The `midi` folder has demos as Standard MIDI Files: `bass.mid`, `pad.mid`,
 `lead.mid`, `multi.mid` (three channels at once), `popcorn2.mid` (a whole
-song on 13 channels) and `canon.mid` (Pachelbel's Canon in D, four voices). Each file first sends the complete patch for every
-channel it uses, so it sounds the same whatever the synth was set to.
+song on 13 channels), `canon.mid` (Pachelbel's Canon in D, four voices) and
+six electronic tracks converted from LMMS's demo projects (credits and
+licences in [midi/README.md](midi/README.md)). Each file first sends the
+complete patch for every channel it uses, so it sounds the same whatever the
+synth was set to.
 
 On Linux play them with aplaymidi (alsa-utils):
 
