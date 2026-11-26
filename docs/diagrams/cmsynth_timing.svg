@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="490" viewBox="0 0 1000 490">
+<title>cmsynth render timing</title>
+<defs><marker id="a_audio" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2b6cb0"/></marker><marker id="a_ctrl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c27a12"/></marker><marker id="a_hw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2f855a"/></marker><marker id="a_ext" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555555"/></marker></defs>
+<rect width="1000" height="490" fill="#ffffff"/>
+<text x="500" y="28" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" text-anchor="middle" fill="#1a202c" >Rendering: double buffered blocks of 64 frames</text>
+<text x="138" y="97" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="end" fill="#1a202c" >DMA → I2S plays</text>
+<text x="138" y="147" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="end" fill="#1a202c" >CPU renders</text>
+<rect x="150" y="75" width="200" height="34" rx="3" fill="#e3f4e6" stroke="#2f855a" stroke-width="2"/>
+<text x="250.0" y="97.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a202c" >half A</text>
+<rect x="150" y="125" width="106.0" height="34" rx="3" fill="#e3effb" stroke="#2b6cb0" stroke-width="2"/>
+<text x="203.0" y="147" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a202c" >fill B</text>
+<text x="303.0" y="147" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" text-anchor="middle" fill="#4a5568" >idle</text>
+<line x1="150" y1="62" x2="150" y2="175" stroke="#2f855a" stroke-width="1.5" stroke-dasharray="3 3"/>
+<rect x="350" y="75" width="200" height="34" rx="3" fill="#e3f4e6" stroke="#2f855a" stroke-width="2"/>
+<text x="450.0" y="97.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a202c" >half B</text>
+<rect x="350" y="125" width="106.0" height="34" rx="3" fill="#e3effb" stroke="#2b6cb0" stroke-width="2"/>
+<text x="403.0" y="147" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a202c" >fill A</text>
+<text x="503.0" y="147" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" text-anchor="middle" fill="#4a5568" >idle</text>
+<line x1="350" y1="62" x2="350" y2="175" stroke="#2f855a" stroke-width="1.5" stroke-dasharray="3 3"/>
+<rect x="550" y="75" width="200" height="34" rx="3" fill="#e3f4e6" stroke="#2f855a" stroke-width="2"/>
+<text x="650.0" y="97.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a202c" >half A</text>
+<rect x="550" y="125" width="106.0" height="34" rx="3" fill="#e3effb" stroke="#2b6cb0" stroke-width="2"/>
+<text x="603.0" y="147" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a202c" >fill B</text>
+<text x="703.0" y="147" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" text-anchor="middle" fill="#4a5568" >idle</text>
+<line x1="550" y1="62" x2="550" y2="175" stroke="#2f855a" stroke-width="1.5" stroke-dasharray="3 3"/>
+<rect x="750" y="75" width="200" height="34" rx="3" fill="#e3f4e6" stroke="#2f855a" stroke-width="2"/>
+<text x="850.0" y="97.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a202c" >half B</text>
+<rect x="750" y="125" width="106.0" height="34" rx="3" fill="#e3effb" stroke="#2b6cb0" stroke-width="2"/>
+<text x="803.0" y="147" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a202c" >fill A</text>
+<text x="903.0" y="147" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" text-anchor="middle" fill="#4a5568" >idle</text>
+<line x1="750" y1="62" x2="750" y2="175" stroke="#2f855a" stroke-width="1.5" stroke-dasharray="3 3"/>
+<text x="550" y="55" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#2f855a" >DMA half / full done interrupt: refill the half that just finished</text>
+<line x1="150" y1="190" x2="350" y2="190" stroke="#4a5568" stroke-width="1.2" marker-start="url(#a_ext)" marker-end="url(#a_ext)"/>
+<text x="250.0" y="206" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >64 frames = 1.33 ms</text>
+<text x="370" y="195" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="start" fill="#4a5568" >rendering 8 voices takes about half of each block (53% on the F407, 48% on the RP2354)</text>
+<text x="500" y="255" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="15" font-weight="bold" text-anchor="middle" fill="#1a202c" >Inside synth_process(), one block</text>
+<rect x="40" y="280" width="60" height="44" rx="3" fill="#e3effb" stroke="#2b6cb0" stroke-width="2"/>
+<text x="70.0" y="307.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#1a202c" >noise</text>
+<rect x="100.0" y="280" width="12.333333333333334" height="44" fill="#fdf0dc" stroke="#c27a12" stroke-width="1.5"/>
+<rect x="112.33333333333333" y="280" width="49.333333333333336" height="44" fill="#e3effb" stroke="#2b6cb0" stroke-width="1.5"/>
+<rect x="161.66666666666666" y="280" width="12.333333333333334" height="44" fill="#fdf0dc" stroke="#c27a12" stroke-width="1.5"/>
+<rect x="174.0" y="280" width="49.333333333333336" height="44" fill="#e3effb" stroke="#2b6cb0" stroke-width="1.5"/>
+<rect x="223.33333333333331" y="280" width="12.333333333333334" height="44" fill="#fdf0dc" stroke="#c27a12" stroke-width="1.5"/>
+<rect x="235.66666666666666" y="280" width="49.333333333333336" height="44" fill="#e3effb" stroke="#2b6cb0" stroke-width="1.5"/>
+<rect x="285.0" y="280" width="12.333333333333334" height="44" fill="#fdf0dc" stroke="#c27a12" stroke-width="1.5"/>
+<rect x="297.3333333333333" y="280" width="49.333333333333336" height="44" fill="#e3effb" stroke="#2b6cb0" stroke-width="1.5"/>
+<text x="223.33333333333331" y="344" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a202c" >voice 1</text>
+<rect x="346.66666666666663" y="280" width="12.333333333333334" height="44" fill="#fdf0dc" stroke="#c27a12" stroke-width="1.5"/>
+<rect x="358.99999999999994" y="280" width="49.333333333333336" height="44" fill="#e3effb" stroke="#2b6cb0" stroke-width="1.5"/>
+<rect x="408.3333333333333" y="280" width="12.333333333333334" height="44" fill="#fdf0dc" stroke="#c27a12" stroke-width="1.5"/>
+<rect x="420.66666666666663" y="280" width="49.333333333333336" height="44" fill="#e3effb" stroke="#2b6cb0" stroke-width="1.5"/>
+<rect x="469.99999999999994" y="280" width="12.333333333333334" height="44" fill="#fdf0dc" stroke="#c27a12" stroke-width="1.5"/>
+<rect x="482.33333333333326" y="280" width="49.333333333333336" height="44" fill="#e3effb" stroke="#2b6cb0" stroke-width="1.5"/>
+<rect x="531.6666666666666" y="280" width="12.333333333333334" height="44" fill="#fdf0dc" stroke="#c27a12" stroke-width="1.5"/>
+<rect x="544.0" y="280" width="49.333333333333336" height="44" fill="#e3effb" stroke="#2b6cb0" stroke-width="1.5"/>
+<text x="469.99999999999994" y="344" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a202c" >voice 2</text>
+<rect x="593.3333333333333" y="280" width="50" height="44" rx="3" fill="#ffffff" stroke="#888888" stroke-width="2"/>
+<text x="618.3333333333333" y="307.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#1a202c" >…</text>
+<rect x="643.3333333333333" y="280" width="12.333333333333334" height="44" fill="#fdf0dc" stroke="#c27a12" stroke-width="1.5"/>
+<rect x="655.6666666666666" y="280" width="49.333333333333336" height="44" fill="#e3effb" stroke="#2b6cb0" stroke-width="1.5"/>
+<rect x="704.9999999999999" y="280" width="12.333333333333334" height="44" fill="#fdf0dc" stroke="#c27a12" stroke-width="1.5"/>
+<rect x="717.3333333333333" y="280" width="49.333333333333336" height="44" fill="#e3effb" stroke="#2b6cb0" stroke-width="1.5"/>
+<rect x="766.6666666666666" y="280" width="12.333333333333334" height="44" fill="#fdf0dc" stroke="#c27a12" stroke-width="1.5"/>
+<rect x="779.0" y="280" width="49.333333333333336" height="44" fill="#e3effb" stroke="#2b6cb0" stroke-width="1.5"/>
+<rect x="828.3333333333333" y="280" width="12.333333333333334" height="44" fill="#fdf0dc" stroke="#c27a12" stroke-width="1.5"/>
+<rect x="840.6666666666666" y="280" width="49.333333333333336" height="44" fill="#e3effb" stroke="#2b6cb0" stroke-width="1.5"/>
+<text x="766.6666666666666" y="344" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a202c" >voice 8</text>
+<rect x="889.9999999999999" y="280" width="70" height="44" rx="3" fill="#e3effb" stroke="#2b6cb0" stroke-width="2"/>
+<text x="924.9999999999999" y="307.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#1a202c" >out</text>
+<text x="500" y="375" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a202c" >One control step = 16 samples (repeated 4 times per voice):</text>
+<rect x="170" y="388" width="22" height="14" rx="3" fill="#fdf0dc" stroke="#c27a12" stroke-width="2"/>
+<text x="202" y="400" font-family="DejaVu Sans Mono, Consolas, monospace" font-size="13" font-weight="bold" text-anchor="start" fill="#1a202c" >voice_control()</text>
+<text x="360" y="400" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="start" fill="#4a5568" >glide, pitch, modulation, contours, cutoff → G, 1/(1+kG⁴)</text>
+<rect x="170" y="410" width="22" height="14" rx="3" fill="#e3effb" stroke="#2b6cb0" stroke-width="2"/>
+<text x="202" y="422" font-family="DejaVu Sans Mono, Consolas, monospace" font-size="13" font-weight="bold" text-anchor="start" fill="#1a202c" >osc_render() × 3</text>
+<text x="360" y="422" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="start" fill="#4a5568" >one loop per waveform, mixed with the noise into m[16]</text>
+<rect x="170" y="432" width="22" height="14" rx="3" fill="#e3effb" stroke="#2b6cb0" stroke-width="2"/>
+<text x="202" y="444" font-family="DejaVu Sans Mono, Consolas, monospace" font-size="13" font-weight="bold" text-anchor="start" fill="#1a202c" >filter + VCA</text>
+<text x="360" y="444" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="start" fill="#4a5568" >ladder, loudness, pan; added to the L/R mix</text>
+<text x="500" y="475" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >out: soft clip the mix and convert to int16 into the DMA half</text>
+</svg>

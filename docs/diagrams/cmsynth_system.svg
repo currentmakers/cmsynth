@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="520" viewBox="0 0 1000 520">
+<title>cmsynth system overview</title>
+<defs><marker id="a_audio" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2b6cb0"/></marker><marker id="a_ctrl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c27a12"/></marker><marker id="a_hw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2f855a"/></marker><marker id="a_ext" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555555"/></marker></defs>
+<rect width="1000" height="520" fill="#ffffff"/>
+<text x="500" y="28" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" text-anchor="middle" fill="#1a202c" >cmsynth: from USB MIDI to audio out</text>
+<rect x="20" y="60" width="165" height="92" rx="8" fill="#eeeeee" stroke="#555555" stroke-width="2"/>
+<text x="102.5" y="93.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="15" font-weight="bold" text-anchor="middle" fill="#1a202c" >Host</text>
+<text x="102.5" y="111.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >DAW, aplaymidi,</text>
+<text x="102.5" y="129.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >web panel (Web MIDI)</text>
+<rect x="235" y="60" width="165" height="92" rx="8" fill="#e3f4e6" stroke="#2f855a" stroke-width="2"/>
+<text x="317.5" y="93.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="15" font-weight="bold" text-anchor="middle" fill="#1a202c" >TinyUSB</text>
+<text x="317.5" y="111.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >USB MIDI device</text>
+<text x="317.5" y="129.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >"CurrentMakers cmsynth"</text>
+<rect x="450" y="60" width="165" height="92" rx="8" fill="#fdf0dc" stroke="#c27a12" stroke-width="2"/>
+<text x="532.5" y="93.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="15" font-weight="bold" text-anchor="middle" fill="#1a202c" >midi.c</text>
+<text x="532.5" y="111.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >note on/off, CC, bend,</text>
+<text x="532.5" y="129.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >mod wheel, pedal</text>
+<rect x="665" y="60" width="165" height="92" rx="8" fill="#fdf0dc" stroke="#c27a12" stroke-width="2"/>
+<text x="747.5" y="93.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="15" font-weight="bold" text-anchor="middle" fill="#1a202c" >params.c</text>
+<text x="747.5" y="111.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >CC → patch field,</text>
+<text x="747.5" y="129.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >range, curve, 14-bit</text>
+<rect x="850" y="60" width="130" height="92" rx="8" fill="#fdf0dc" stroke="#c27a12" stroke-width="2"/>
+<text x="915.0" y="93.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="15" font-weight="bold" text-anchor="middle" fill="#1a202c" >patches[16]</text>
+<text x="915.0" y="111.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >one per MIDI</text>
+<text x="915.0" y="129.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >channel</text>
+<polyline points="185,106.0 235,106.0" fill="none" stroke="#555555" stroke-width="2" marker-end="url(#a_ext)"/>
+<text x="210.0" y="98.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" text-anchor="middle" fill="#4a5568" >USB</text>
+<polyline points="400,106.0 450,106.0" fill="none" stroke="#2f855a" stroke-width="2" marker-end="url(#a_hw)"/>
+<polyline points="615,106.0 665,106.0" fill="none" stroke="#c27a12" stroke-width="2" marker-end="url(#a_ctrl)"/>
+<text x="640.0" y="98.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" text-anchor="middle" fill="#4a5568" >CC</text>
+<polyline points="830,106.0 850,106.0" fill="none" stroke="#c27a12" stroke-width="2" marker-end="url(#a_ctrl)"/>
+<rect x="450" y="210" width="165" height="92" rx="8" fill="#fdf0dc" stroke="#c27a12" stroke-width="2"/>
+<text x="532.5" y="243.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#1a202c" >Voice allocation</text>
+<text x="532.5" y="261.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >free voice, else oldest</text>
+<text x="532.5" y="279.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >released, else oldest</text>
+<polyline points="532.5,152 532.5,210" fill="none" stroke="#c27a12" stroke-width="2" marker-end="url(#a_ctrl)"/>
+<text x="540.5" y="186.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" text-anchor="start" fill="#4a5568" >note on/off</text>
+<rect x="677" y="198" width="165" height="92" rx="8" fill="#e3effb" stroke="#2b6cb0" stroke-width="2"/>
+<rect x="671" y="204" width="165" height="92" rx="8" fill="#e3effb" stroke="#2b6cb0" stroke-width="2"/>
+<rect x="665" y="210" width="165" height="92" rx="8" fill="#e3effb" stroke="#2b6cb0" stroke-width="2"/>
+<text x="747.5" y="243.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="15" font-weight="bold" text-anchor="middle" fill="#1a202c" >voices[8]</text>
+<text x="747.5" y="261.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >pitch, phases, filter,</text>
+<text x="747.5" y="279.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >both contours</text>
+<polyline points="615,256.0 665,256.0" fill="none" stroke="#c27a12" stroke-width="2" marker-end="url(#a_ctrl)"/>
+<polyline points="915,152 915,256.0 842,256.0" fill="none" stroke="#c27a12" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#a_ctrl)"/>
+<text x="925" y="282.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" text-anchor="middle" fill="#4a5568" >each voice reads</text>
+<text x="925" y="298.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" text-anchor="middle" fill="#4a5568" >its channel's patch</text>
+<rect x="665" y="360" width="165" height="92" rx="8" fill="#e3effb" stroke="#2b6cb0" stroke-width="2"/>
+<text x="747.5" y="393.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#1a202c" >synth_process()</text>
+<text x="747.5" y="411.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >main loop renders</text>
+<text x="747.5" y="429.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >64 frames (1.33 ms)</text>
+<polyline points="747.5,302 747.5,360" fill="none" stroke="#2b6cb0" stroke-width="2" marker-end="url(#a_audio)"/>
+<rect x="450" y="360" width="165" height="92" rx="8" fill="#e3f4e6" stroke="#2f855a" stroke-width="2"/>
+<text x="532.5" y="382" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="15" font-weight="bold" text-anchor="middle" fill="#1a202c" >DMA buffer</text>
+<rect x="462" y="394" width="69" height="28" fill="#ffffff" stroke="#2f855a" stroke-width="1.5"/>
+<text x="496.5" y="413" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#1a202c" >half A</text>
+<rect x="534" y="394" width="69" height="28" fill="#ffffff" stroke="#2f855a" stroke-width="1.5"/>
+<text x="568.5" y="413" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#1a202c" >half B</text>
+<text x="532.5" y="440" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >circular, ping-pong</text>
+<polyline points="665,434 615,434" fill="none" stroke="#2b6cb0" stroke-width="2" marker-end="url(#a_audio)"/>
+<text x="640.0" y="469" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" text-anchor="middle" fill="#4a5568" >int16 L/R</text>
+<polyline points="615,378 665,378" fill="none" stroke="#2f855a" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#a_hw)"/>
+<text x="640.0" y="352" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" text-anchor="middle" fill="#4a5568" >half done</text>
+<rect x="235" y="360" width="165" height="92" rx="8" fill="#e3f4e6" stroke="#2f855a" stroke-width="2"/>
+<text x="317.5" y="393.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="15" font-weight="bold" text-anchor="middle" fill="#1a202c" >I2S</text>
+<text x="317.5" y="411.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >I2S2 + DMA (F407)</text>
+<text x="317.5" y="429.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >PIO + 2 DMA (RP2354)</text>
+<polyline points="450,406.0 400,406.0" fill="none" stroke="#2f855a" stroke-width="2" marker-end="url(#a_hw)"/>
+<rect x="20" y="360" width="165" height="92" rx="8" fill="#e3f4e6" stroke="#2f855a" stroke-width="2"/>
+<text x="102.5" y="393.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="15" font-weight="bold" text-anchor="middle" fill="#1a202c" >PCM5102</text>
+<text x="102.5" y="411.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >Audio DAC blade</text>
+<text x="102.5" y="429.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >16-bit, 48 kHz</text>
+<polyline points="235,406.0 185,406.0" fill="none" stroke="#2f855a" stroke-width="2" marker-end="url(#a_hw)"/>
+<polyline points="102.5,452 102.5,482" fill="none" stroke="#2f855a" stroke-width="2" marker-end="url(#a_hw)"/>
+<text x="112.5" y="478" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="start" fill="#4a5568" >line out</text>
+<rect x="235" y="494" width="22" height="14" rx="3" fill="#fdf0dc" stroke="#c27a12" stroke-width="2"/>
+<text x="265" y="506" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="start" fill="#4a5568" >MIDI and control</text>
+<rect x="390.2" y="494" width="22" height="14" rx="3" fill="#e3effb" stroke="#2b6cb0" stroke-width="2"/>
+<text x="420.2" y="506" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="start" fill="#4a5568" >synth engine (src/)</text>
+<rect x="567.0" y="494" width="22" height="14" rx="3" fill="#e3f4e6" stroke="#2f855a" stroke-width="2"/>
+<text x="597.0" y="506" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="start" fill="#4a5568" >MCU specific (examples/)</text>
+<rect x="779.8" y="494" width="22" height="14" rx="3" fill="#eeeeee" stroke="#555555" stroke-width="2"/>
+<text x="809.8" y="506" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="start" fill="#4a5568" >external</text>
+</svg>
