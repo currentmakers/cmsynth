@@ -35,6 +35,10 @@ set(SYS_CLOCK_KHZ 320000 CACHE STRING "System clock in kHz")
 # Voices, rendered on both cores
 set(MAX_VOICES 32 CACHE STRING "Number of synth voices")
 
+# TinyUSB from the repository (lib/tinyusb, symlinked here as tinyusb/), the
+# same copy the STM32 example builds, instead of the one in the Pico SDK
+set(PICO_TINYUSB_PATH ${CMAKE_CURRENT_LIST_DIR}/../../lib/tinyusb)
+
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
@@ -42,8 +46,8 @@ project(cmsynth C CXX ASM)
 
 pico_sdk_init()
 
-# The synth source shared by all targets
-set(CMSYNTH_SRC ${CMAKE_CURRENT_LIST_DIR}/../../src)
+# The synth source shared by all targets (src/, symlinked here as cmsynth/)
+set(CMSYNTH_SRC ${CMAKE_CURRENT_LIST_DIR}/cmsynth)
 
 add_executable(cmsynth
     main.c

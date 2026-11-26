@@ -4,7 +4,8 @@
             "name": "Pico",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/../../src",
+                "${workspaceFolder}/cmsynth",
+                "${workspaceFolder}/tinyusb",
                 "${userHome}/.pico-sdk/sdk/2.3.0/**"
             ],
             "forcedInclude": [

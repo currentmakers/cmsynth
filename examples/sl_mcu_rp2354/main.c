@@ -71,6 +71,9 @@ static uint32_t i2s_dma_buffer[2 * I2S_DMA_BUFFER_FRAMES];
 static int16_t *volatile dma_buffer_to_fill = NULL;
 static volatile uint32_t dma_overruns = 0; // Half buffers the main loop did not fill in time
 
+// Volatile variable to mimic STM32's uwTick
+static volatile uint32_t systick = 0;
+
 static PIO i2s_pio = pio0;
 static uint i2s_sm = 0;
 static int dma_chan_a = -1;
@@ -129,6 +132,22 @@ static void debug_uart_init(void) {
     irq_set_exclusive_handler(DEBUG_UART_IRQ, uart_tx_irq);
     irq_set_enabled(DEBUG_UART_IRQ, true);
     stdio_set_driver_enabled(&uart_ring_driver, true);
+}
+
+/*
+ * 1 ms tick, like the STM32's SysTick
+ */
+
+bool on_timer_tick(struct repeating_timer *t) {
+    systick++;
+    return true; // Keep the timer running
+}
+
+void universal_tick_init() {
+    static struct repeating_timer timer;
+    // Negative delay means "measure from the start of the last callback"
+    // to avoid jitter. -1ms = 1000us frequency.
+    add_repeating_timer_ms(-1, on_timer_tick, NULL, &timer);
 }
 
 /*
@@ -259,6 +278,8 @@ int main(void) {
     busy_wait_us(1000);
     set_sys_clock_khz(SYS_CLOCK_KHZ, true);
 
+    universal_tick_init();
+
     debug_uart_init();
 
     gpio_init(PICO_DEFAULT_LED_PIN);
@@ -310,7 +331,7 @@ int main(void) {
         // USB events, received MIDI goes to the synth (midi.c)
         tud_task();
 
-        uint32_t now = to_ms_since_boot(get_absolute_time());
+        uint32_t now = systick;
 
         if (now >= next_blink) {
             gpio_xor_mask64((uint64_t)1 << PICO_DEFAULT_LED_PIN);
