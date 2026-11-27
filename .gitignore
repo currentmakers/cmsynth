@@ -66,7 +66,7 @@ build/
 build_*/
 
 # CubeIDE per-user language settings (CubeIDE rewrites them)
-.settings/language.settings.xml
+**/.settings/language.settings.xml
 
 # CubeIDE workspace metadata
 .metadata/
