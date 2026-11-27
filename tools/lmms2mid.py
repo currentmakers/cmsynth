@@ -45,7 +45,7 @@ PATCHES = {
     # Spinet (a small harpsichord) for continuo: a quill plucking a thin, bright
     # string - narrow pulse and a 4' saw, a filter that closes fast, no sustain
     'spinet': dict(osc1_range="8'", osc1_wave='narrow', osc1_level=0.8, osc2_range="4'", osc2_wave='saw',
-                   osc2_level=0.35, cutoff=1200, emphasis=0.3, contour=0.75, kbd=3, f_attack=0.001, f_decay=0.2,
+                   osc2_level=0.35, cutoff=950, emphasis=0.3, contour=0.75, kbd=3, f_attack=0.001, f_decay=0.2,
                    f_sustain=0.0, l_attack=0.001, l_decay=0.5, l_sustain=0.0, decay_sw=1),
     # Theorbo (a large lute with long bass strings): plucked gut, warmer and
     # rounder than the spinet, a filter that opens briefly on the pluck
@@ -151,7 +151,8 @@ LEAD_IN = 1.0
 PATCH_SPACING = 0.05
 
 # Per project overrides: track name -> patch name, or (patch name, extra settings), or 'skip'.
-# The extra settings can include 'transpose' (semitones).  '_level' overrides SONG_LEVEL,
+# The extra settings can include 'transpose' (semitones).  '_until' cuts the song at that
+# many seconds.  '_level' overrides SONG_LEVEL,
 # '_name' names the MIDI file.
 SONGS = {
     'popcorn2': {
@@ -172,9 +173,11 @@ SONGS = {
         'Track 2': ('violin', dict(cutoff=1700, osc3_detune=0.9, pan=0.6)),
         'Track 3': ('violin', dict(osc2_wave='wide', cutoff=2200, emphasis=0.45, osc3_detune=1.12, pan=0.0)),
         'Track 4': ('cello', dict(cutoff=1200)),
+        # The project goes on with another piece after a silence at 5:40: stop there
+        '_until': 340.5,
         # Continuo: a spinet plucking the chord of every bass note, and a theorbo
         # breaking it upwards from the bass an octave down, like a lute player
-        '_continuo': [dict(bass='Track 4', key='D', patch='spinet', level=0.4, pan=0.35),
+        '_continuo': [dict(bass='Track 4', key='D', patch='spinet', level=0.2, pan=0.35),
                       dict(bass='Track 4', key='D', patch='theorbo', style='arpeggio', level=0.45, pan=-0.3)],
     },
     # mute_bass.ds sounds around A2, LMMS plays it 15 semitones up from its base note
@@ -506,6 +509,24 @@ def convert(path):
         style = cont.get('style', 'chords' if pname != 'church_organ' else 'held')
         n = continuo(seq, ch, track_notes_by_name[cont['bass']], cont.get('key', 'C'), style)
         report.append(f"continuo ({pname}, {style}): channel {ch + 1}, {n} chords over {cont['bass']}")
+
+    until = overrides.get('_until')
+    if until:
+        # Drop everything after the cut, except the note offs of notes still sounding
+        active, kept = set(), []
+        for t, m in sorted(seq.ev, key=lambda e: e[0]):
+            kind = m[0] & 0xF0
+            if t < until:
+                if kind == 0x90 and m[2] > 0:
+                    active.add((m[0] & 0x0F, m[1]))
+                elif kind == 0x80 or (kind == 0x90 and m[2] == 0):
+                    active.discard((m[0] & 0x0F, m[1]))
+                kept.append((t, m))
+            elif kind == 0x80 and (m[0] & 0x0F, m[1]) in active:
+                active.discard((m[0] & 0x0F, m[1]))
+                kept.append((t, m))
+        seq.ev = kept
+        report.append(f'cut at {until:.1f} s')
 
     end = max(t for t, _ in seq.ev)
     return seq, end, report, bpm

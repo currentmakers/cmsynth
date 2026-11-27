@@ -11,7 +11,7 @@ its own sound no matter what the synth was doing before.
 | `lead.mid` | 1 | Lead with glide, vibrato from oscillator 3 on the mod wheel |
 | `multi.mid` | 1, 2, 3 | Bass, pad (left) and resonant pluck arpeggio (right) at once |
 | `popcorn2.mid` | 1-8, 10-14 | Popcorn, converted from an LMMS project with `tools/lmms2mid.py` (2:34) |
-| `canon.mid` | 1-6 | Pachelbel's Canon in D: three violins in canon (left, right, centre) over the cello, with a spinet and a theorbo as continuo, converted from LMMS (11:43) |
+| `canon.mid` | 1-6 | Pachelbel's Canon in D: three violins in canon (left, right, centre) over the cello, with a spinet and a theorbo as continuo, converted from LMMS (5:39) |
 | `bach-air.mid` | 1-14 | Bach's Air (BWV 1068), a grand orchestral arrangement made with `tools/make_air.py` (3:49) |
 | `drum-solo.mid` | 1-14 | A drum solo on the drum kit below, made with `tools/make_drum_solo.py` (1:47) |
 | `drumkit-test.mid` | 1-14 | Every drum of the kit on its own, three strengths each (1:05) |
