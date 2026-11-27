@@ -91,11 +91,11 @@ char const *string_desc_arr[] =
         {
                 (const char[] ) { 0x09, 0x04 }, // 0: Supported Language (0x0409 = English US)
                 "CurrentMakers",               // 1: Manufacturer
-                "CurrentMakers cmsynth",         // 2: Product Name (Appears in DAW/OS)
+                "CurrentMakers cmsynth (STM32H723)",         // 2: Product Name (Appears in DAW/OS)
                 "",                            // 3: Serial Number (Generated dynamically)
         };
 
-static uint16_t _desc_str[32];
+static uint16_t _desc_str[48];  // Room for the product name with the MCU
 
 // Invoked when receiving GET STRING DESCRIPTOR request
 uint16_t const* tud_descriptor_string_cb(uint8_t index, uint16_t langid)
@@ -132,8 +132,8 @@ uint16_t const* tud_descriptor_string_cb(uint8_t index, uint16_t langid)
 
         // Cap string length at 31 characters
         chr_count = (uint8_t) strlen(str);
-        if (chr_count > 31)
-            chr_count = 31;
+        if (chr_count > 47)
+            chr_count = 47;
 
         // Convert ASCII string into UTF-16
         for (uint8_t i = 0; i < chr_count; i++)

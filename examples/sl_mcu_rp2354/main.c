@@ -22,7 +22,8 @@
  * core 0 between blocks) never changes a voice while it is being rendered.
  *
  * The system clock is 320 MHz with the core voltage at 1.30 V (overclocked,
- * the RP2350 is rated for 150 MHz at 1.10 V).
+ * the RP2350 is rated for 150 MHz at 1.10 V). Build with
+ * -DSYS_CLOCK_KHZ=150000 for the rated clock at the default voltage.
  */
 
 #include <stdio.h>
@@ -273,9 +274,12 @@ static uint32_t render_block(int16_t *buf) {
 }
 
 int main(void) {
-    // Raise the core voltage before the clock
-    vreg_set_voltage(VREG_VOLTAGE_1_30);
-    busy_wait_us(1000);
+    // Overclocked: raise the core voltage before the clock. At the rated
+    // 150 MHz (cmake -DSYS_CLOCK_KHZ=150000) it stays at the default 1.10 V.
+    if (SYS_CLOCK_KHZ > 150000) {
+        vreg_set_voltage(VREG_VOLTAGE_1_30);
+        busy_wait_us(1000);
+    }
     set_sys_clock_khz(SYS_CLOCK_KHZ, true);
 
     universal_tick_init();

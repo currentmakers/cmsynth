@@ -3,7 +3,7 @@
 STM32CubeIDE project running cmsynth on an STM32F407VE at 168 MHz, with audio
 out through the PCM5102 audio DAC Streamline blade.
 
-- USB MIDI device on USB OTG FS (TinyUSB), shows up as "CurrentMakers cmsynth"
+- USB MIDI device on USB OTG FS (TinyUSB), shows up as "CurrentMakers cmsynth (STM32F407)"
 - I2S2 to the PCM5102: 48 kHz, 16 bit stereo, DMA with 64 frame halves
   (1.33 ms)
 - 8 voices; with every voice playing the default patch the synth uses about

@@ -75,11 +75,11 @@ uint8_t const *tud_descriptor_configuration_cb(uint8_t index) {
 static char const *string_desc_arr[] = {
     (const char[]){ 0x09, 0x04 }, // 0: English (US)
     "CurrentMakers",              // 1: Manufacturer
-    "CurrentMakers cmsynth",      // 2: Product (the MIDI port name)
+    "CurrentMakers cmsynth (RP2354)",      // 2: Product (the MIDI port name)
     NULL,                         // 3: Serial number, the chip's unique id
 };
 
-static uint16_t desc_str[32];
+static uint16_t desc_str[48];  // Room for the product name with the MCU
 
 uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
     (void)langid;
@@ -100,8 +100,8 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
         }
 
         chr_count = (uint8_t)strlen(str);
-        if (chr_count > 31)
-            chr_count = 31;
+        if (chr_count > 47)
+            chr_count = 47;
         for (uint8_t i = 0; i < chr_count; i++)
             desc_str[1 + i] = str[i];
     }

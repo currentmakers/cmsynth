@@ -6,11 +6,13 @@ Streamline blade. The main loop works like the STM32F407 example's, but the
 rendering is split over both cores and the chip is overclocked to 320 MHz,
 which gives 32 voices.
 
-- USB MIDI device (TinyUSB from the Pico SDK), shows up as "CurrentMakers cmsynth"
+- USB MIDI device (TinyUSB from the Pico SDK), shows up as "CurrentMakers cmsynth (RP2354)"
 - I2S from a PIO state machine fed by two chained DMA channels: 48 kHz, 16 bit
   stereo, 64 frame halves (1.33 ms)
 - 320 MHz system clock with the core voltage raised to 1.30 V (`SYS_CLOCK_KHZ`
-  in `CMakeLists.txt`, the RP2350 is rated for 150 MHz at 1.10 V)
+  in `CMakeLists.txt`, the RP2350 is rated for 150 MHz at 1.10 V). Build with
+  `-DSYS_CLOCK_KHZ=150000` for the rated clock: the core voltage then stays at
+  the default.
 - 32 voices (`MAX_VOICES` in `CMakeLists.txt`). Core 0 renders the even
   voices and core 1 the odd ones, each into its own mix, then core 0 adds the
   two mixes. Core 1 only works while core 0 waits for it inside
@@ -45,6 +47,24 @@ including the wait for core 1:
 
 Each pair of voices adds about 4.3% at 320 MHz, so 32 leaves room for USB
 and the rest.
+
+### At the rated 150 MHz
+
+The same test with `-DSYS_CLOCK_KHZ=150000` (default core voltage), both
+cores:
+
+| Voices | CPU load |
+|---|---|
+| 0 | 3.0% |
+| 8 | 39.4% |
+| 16 | 74.3% |
+| 24 | 109% (overruns) |
+
+About 4.6% per voice, so about 21 voices fit at the rated clock: the load
+scales with the clock (8 voices take 19.0% at 320 MHz, 39.4% at 150 MHz).
+In this build core 1's cycle counter reads 0, so the status line's core1
+figure stays at 0.0% (the load on core 0, which includes the wait for core 1,
+is right); at 320 MHz it works.
 
 ### Compared with the STM32F407
 
