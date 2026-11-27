@@ -14,7 +14,8 @@ Wiki: https://stm32world.com/wiki/Polyphonic_MIDI_Synthesizer
   sustain and the decay switch), glide, and oscillator 3 or noise as
   modulation on the mod wheel.
 - 16 MIDI channels, each with its own complete patch, sharing the voices
-  (8 on the STM32F407, 32 on the RP2354 with both cores at 320 MHz).
+  (8 on the STM32F407, 32 on the RP2354 with both cores at 320 MHz, 32 on
+  the STM32H723 at 550 MHz).
 - Every panel control is a MIDI CC, with 14 bit resolution for cutoff and
   detune.
 - A web panel and keyboard that talks to the synth with Web MIDI.
@@ -30,6 +31,8 @@ Wiki: https://stm32world.com/wiki/Polyphonic_MIDI_Synthesizer
     PCM5102 audio DAC Streamline blade, STM32CubeIDE project
   - [`sl_mcu_rp2354`](examples/sl_mcu_rp2354) - RP2354 (Arm Cortex-M33) with
     the same audio blade, Pico SDK project for VS Code
+  - [`sl_mcu_stm32h723`](examples/sl_mcu_stm32h723) - STM32H723 (Arm
+    Cortex-M7 at 550 MHz) with the same audio blade, STM32CubeIDE project
 - `lib/tinyusb` - TinyUSB (git submodule) for USB MIDI on the STM32 (the RP2354
   uses the Pico SDK's)
 - `midi/` - demo MIDI files that set up their own patches, see
@@ -41,6 +44,23 @@ Wiki: https://stm32world.com/wiki/Polyphonic_MIDI_Synthesizer
 - `tools/` - scripts for the demos, recordings and MIDI files (below)
 
 More targets can be added as further examples using the same `src/`.
+
+### Performance
+
+The same worst case on every target: every voice playing the most expensive
+patch (three oscillators and noise, all filter and contour stages busy),
+measured with the cycle counter around every audio block of 1.33 ms:
+
+| Target | Core | Clock | Voices | CPU per block | Per voice |
+|--------|------|-------|--------|---------------|-----------|
+| STM32F407 | Cortex-M4 | 168 MHz | 8 | about 75% | about 125 us |
+| RP2354 | 2 x Cortex-M33 | 320 MHz | 32 | 70.5% (both cores) | about 29 us (59 us per core) |
+| STM32H723 | Cortex-M7 | 550 MHz | 32 | 86% (one core) | about 36 us |
+
+Per clock cycle the three cores are close: a voice costs 19,000 to 21,000
+cycles per block on each of them. The H723 wins on clock speed alone, the
+RP2354 by using both cores.
+
 
 ## Getting the source
 

@@ -19,11 +19,14 @@
 
 #include "synth.h"
 
-// Where the voice state lives. On the STM32F407 that is the 64K core coupled RAM
-// (zero wait states, not on the DMA bus); other targets can define SYNTH_FAST_RAM.
+// Where the voice state lives. On the STM32F407 that is the 64K core coupled RAM,
+// on the STM32H723 the 128K DTCM (both zero wait states, not on the DMA bus);
+// other targets can define SYNTH_FAST_RAM.
 #ifndef SYNTH_FAST_RAM
 #if defined(STM32F407xx)
 #define SYNTH_FAST_RAM __attribute__((section(".ccmram")))
+#elif defined(STM32H723xx)
+#define SYNTH_FAST_RAM __attribute__((section(".dtcmram")))
 #else
 #define SYNTH_FAST_RAM
 #endif
