@@ -245,6 +245,16 @@ static void i2s_init(uint32_t sample_rate) {
 
 static synth_mix_t mixes[SYNTH_CORES];
 
+// Core 0 sends CORE1_GO for every block. Core 1 replies with the cycles it took
+// with CORE1_DONE set. A core 1 that has been reset (a debugger does that after
+// flashing: OpenOCD resets core 1 shortly after the chip reset, which can be
+// after this firmware has started it) sits in the boot ROM, which echoes
+// whatever it gets through the FIFO while it waits to be launched. Without the
+// flag core 0 knows core 1 is not running: it renders core 1's voices itself
+// and launches core 1 again.
+#define CORE1_GO   0x60u
+#define CORE1_DONE 0x80000000u
+
 // Core 1: wait for a block, render its part of the voices, reply with the
 // cycles it took
 static void core1_main(void) {
@@ -253,8 +263,15 @@ static void core1_main(void) {
         multicore_fifo_pop_blocking();
         uint32_t start = cycle_counter();
         synth_render(&mixes[1], 1, SYNTH_CORES);
-        multicore_fifo_push_blocking(cycle_counter() - start);
+        multicore_fifo_push_blocking(((cycle_counter() - start) & ~CORE1_DONE) | CORE1_DONE);
     }
+}
+
+static volatile uint32_t core1_restarts = 0;
+
+static void core1_start(void) {
+    multicore_reset_core1();
+    multicore_launch_core1(core1_main);
 }
 
 // synth_block_end() writes left, right int16 pairs; the PIO sends the upper
@@ -262,9 +279,19 @@ static void core1_main(void) {
 // cycles.
 static uint32_t render_block(int16_t *buf) {
     synth_block_begin();
-    multicore_fifo_push_blocking(0); // Go, core 1
+    multicore_fifo_push_blocking(CORE1_GO); // Go, core 1
     synth_render(&mixes[0], 0, SYNTH_CORES);
     uint32_t core1_cycles = multicore_fifo_pop_blocking();
+    if (core1_cycles & CORE1_DONE) {
+        core1_cycles &= ~CORE1_DONE;
+    } else {
+        // Core 1 is not running (only the boot ROM's echo came back): render its
+        // voices here so none go missing, and start it again
+        synth_render(&mixes[1], 1, SYNTH_CORES);
+        core1_cycles = 0;
+        ++core1_restarts;
+        core1_start();
+    }
     synth_block_end(buf, mixes, SYNTH_CORES);
 
     uint32_t *frame = (uint32_t *)buf;
@@ -304,7 +331,7 @@ int main(void) {
 #endif
     synth_init();
 
-    multicore_launch_core1(core1_main);
+    core1_start();
 
     i2s_init(SAMPLE_FREQ);
 
@@ -347,12 +374,12 @@ int main(void) {
             // wait for core 1), core1: core 1's own rendering
             uint32_t avg = perf_blocks ? perf_cycles_sum / perf_blocks : 0;
             uint32_t avg1 = perf_blocks ? perf_core1_sum / perf_blocks : 0;
-            printf("Tick %lu (loop=%lu) voices=%d cpu avg=%lu.%lu%% max=%lu.%lu%% (%lu/%lu cycles) core1=%lu.%lu%% overruns=%lu\n",
+            printf("Tick %lu (loop=%lu) voices=%d cpu avg=%lu.%lu%% max=%lu.%lu%% (%lu/%lu cycles) core1=%lu.%lu%% overruns=%lu core1_restarts=%lu\n",
                    now / 1000, loop_cnt, synth_active_voices(),
                    avg * 100 / block_budget, (avg * 1000 / block_budget) % 10,
                    perf_cycles_max * 100 / block_budget, (perf_cycles_max * 1000 / block_budget) % 10,
                    perf_cycles_max, block_budget,
-                   avg1 * 100 / block_budget, (avg1 * 1000 / block_budget) % 10, dma_overruns);
+                   avg1 * 100 / block_budget, (avg1 * 1000 / block_budget) % 10, dma_overruns, core1_restarts);
             perf_cycles_sum = perf_cycles_max = perf_blocks = perf_core1_sum = 0;
             loop_cnt = 0;
             next_tick = now + TICK_DELAY;

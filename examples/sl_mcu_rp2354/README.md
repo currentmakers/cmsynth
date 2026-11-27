@@ -53,18 +53,27 @@ and the rest.
 The same test with `-DSYS_CLOCK_KHZ=150000` (default core voltage), both
 cores:
 
-| Voices | CPU load |
-|---|---|
-| 0 | 3.0% |
-| 8 | 39.4% |
-| 16 | 74.3% |
-| 24 | 109% (overruns) |
+| Voices | CPU load | Core 1 |
+|---|---|---|
+| 0 | 3.0% | 0.2% |
+| 8 | 40.6% | 36.2% |
+| 16 | 76.7% | 72.2% |
+| 24 | 113% (overruns) | |
 
 About 4.6% per voice, so about 21 voices fit at the rated clock: the load
-scales with the clock (8 voices take 19.0% at 320 MHz, 39.4% at 150 MHz).
-In this build core 1's cycle counter reads 0, so the status line's core1
-figure stays at 0.0% (the load on core 0, which includes the wait for core 1,
-is right); at 320 MHz it works.
+scales with the clock (8 voices take 19.0% at 320 MHz, 40.6% at 150 MHz).
+
+### When core 1 gets reset
+
+OpenOCD resets core 1 shortly after it resets the chip when flashing. At 320 MHz
+the firmware waits a millisecond for the core voltage first and starts core 1
+after that; at 150 MHz it starts core 1 earlier, and the debugger then resets
+it again. A reset core 1 sits in the boot ROM, which echoes whatever comes
+through the inter-core FIFO while it waits to be launched, so core 0 used to
+take the echo for "done" and the odd voices were silently missing. Now core 1
+marks its replies (bit 31 set): when only an echo comes back, core 0 renders
+core 1's voices itself for that block and launches core 1 again. The status
+line counts this as `core1_restarts` (1 after flashing at 150 MHz, 0 otherwise).
 
 ### Compared with the STM32F407
 

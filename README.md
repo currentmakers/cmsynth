@@ -55,7 +55,7 @@ measured with the cycle counter around every audio block of 1.33 ms:
 |--------|------|-------|--------|---------------|-----------|
 | STM32F407 | Cortex-M4 | 168 MHz | 8 | about 75% | about 125 us |
 | STM32H723 | Cortex-M7 | 550 MHz | 32 | 86% (one core) | about 36 us |
-| RP2354 | 2 x Cortex-M33 | 150 MHz (rated) | 16 | 74.3% (both cores) | about 62 us (124 us per core) |
+| RP2354 | 2 x Cortex-M33 | 150 MHz (rated) | 16 | 76.7% (both cores) | about 64 us (128 us per core) |
 | RP2354 | 2 x Cortex-M33 | 320 MHz (overclocked, 1.30 V) | 32 | 70.5% (both cores) | about 29 us (59 us per core) |
 
 Per clock cycle the three cores are close: a voice costs 19,000 to 21,000
