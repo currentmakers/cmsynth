@@ -64,3 +64,9 @@ Release/
 # Pico SDK build output
 build/
 build_*/
+
+# CubeIDE per-user language settings (CubeIDE rewrites them)
+.settings/language.settings.xml
+
+# CubeIDE workspace metadata
+.metadata/
