@@ -12,6 +12,27 @@ its own sound no matter what the synth was doing before.
 | `multi.mid` | 1, 2, 3 | Bass, pad (left) and resonant pluck arpeggio (right) at once |
 | `popcorn2.mid` | 1-8, 10-14 | Popcorn, converted from an LMMS project with `tools/lmms2mid.py` (2:34) |
 | `canon.mid` | 1-4 | Pachelbel's Canon in D: three violins in canon (left, right, centre) over the cello, converted from LMMS (11:43) |
+| `bach-air.mid` | 1-14 | Bach's Air (BWV 1068), a grand orchestral arrangement made with `tools/make_air.py` (3:49) |
+
+### Bach's Air
+
+`bach-air.mid` is made by `tools/make_air.py` from the four parts of the
+Bach-Gesellschaft edition as typeset by the [Mutopia Project](https://www.mutopiaproject.org/)
+(`tools/bach-air-notes.ly`, by Jeff Covey), under
+[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/), so the MIDI
+file and recordings of it are CC BY-SA 3.0 too. It plays both repeats and
+builds up each time through:
+
+1. A section: strings only (two violin parts, viola, cello)
+2. A again: double bass, harpsichord continuo (the bass line plus the inner
+   parts' chord on every beat), the melody an octave up, timpani at the cadence
+3. B section: organ, choir on the long melody notes, celesta
+4. B again: tutti with horns, a string ensemble, organ pedal and timpani, a
+   broader tempo and a timpani roll under the final fermata
+
+The first violins have vibrato from oscillator 3 that comes in on long notes
+(mod wheel ramps) and the trills are played out. 14 channels and up to 27
+voices at once, 50% CPU on the RP2354; it needs the RP2354's 32 voices.
 
 ### Electronic demos from LMMS
 
