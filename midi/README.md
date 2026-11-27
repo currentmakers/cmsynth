@@ -11,7 +11,7 @@ its own sound no matter what the synth was doing before.
 | `lead.mid` | 1 | Lead with glide, vibrato from oscillator 3 on the mod wheel |
 | `multi.mid` | 1, 2, 3 | Bass, pad (left) and resonant pluck arpeggio (right) at once |
 | `popcorn2.mid` | 1-8, 10-14 | Popcorn, converted from an LMMS project with `tools/lmms2mid.py` (2:34) |
-| `canon.mid` | 1-4 | Pachelbel's Canon in D: three violins in canon (left, right, centre) over the cello, converted from LMMS (11:43) |
+| `canon.mid` | 1-6 | Pachelbel's Canon in D: three violins in canon (left, right, centre) over the cello, with a spinet and a theorbo as continuo, converted from LMMS (11:43) |
 | `bach-air.mid` | 1-14 | Bach's Air (BWV 1068), a grand orchestral arrangement made with `tools/make_air.py` (3:49) |
 | `drum-solo.mid` | 1-14 | A drum solo on the drum kit below, made with `tools/make_drum_solo.py` (1:47) |
 | `drumkit-test.mid` | 1-14 | Every drum of the kit on its own, three strengths each (1:05) |
@@ -109,6 +109,41 @@ in a Telemann sonata for two violins from the same article):
   violinist, from oscillator 3. It moves the filter slightly too, so the tone
   flickers with the pitch as a real violin's harmonics move through its body
   resonances. In the Canon every violin has a slightly different vibrato rate.
+
+The cello is made the same way and was tuned against two solo cello
+recordings from Wikipedia's cello article (Bach's first suite and a
+sarabande): the same saw and pulse mix with the peak lower down (1.6 kHz) for
+the bigger body, and a slower vibrato. The old cello patch was very dark (44
+dB down at 2 kHz, where a real cello is only about 9 dB down) and had too much
+sub bass; the new one follows the real cello within a few dB from 125 Hz to 4
+kHz.
+
+A static note sounds like a keyboard however good its spectrum is, so the
+cello is also bowed (`bow()` in `tools/lmms2mid.py`, used by the Canon and the
+Air): it plays one note at a time, so every note gets its own automation on
+the cello's channel. The volume (CC 7) starts at 70%, swells to its peak a
+third into the stroke and eases off towards the end, the brightness (cutoff)
+follows the same curve as bow pressure does, and the vibrato fades in after
+the start of the note. The patch itself has a slower attack and a sustain
+that fades a little.
+
+### Continuo in the Canon
+
+A baroque performance of the Canon has continuo players with the cello: an
+instrument that plays the chords over the bass line. `tools/lmms2mid.py`
+generates them from the cello's notes (`_continuo` in `SONGS`): the chord of
+every bass note, from the key, voiced around G3-G4 with the smallest movement
+from the previous chord (D, A, Bm, F#m, G, D, G, A).
+
+- A spinet (a small harpsichord) plucks the chord, spread lightly from the
+  bottom, and again softer halfway through the bass note.
+- A theorbo (a large lute with long bass strings) plays the bass note an
+  octave down and breaks the chord upwards, four notes to the bass note.
+
+The strings in the Canon are a little darker than the violin patch on its own:
+measured against an ensemble recording of the Canon (violins, cello and
+continuo in a hall) the close-miked solo violin tuning was 6-12 dB too bright
+between 2 and 4 kHz.
 
 ### Electronic demos from LMMS
 

@@ -201,9 +201,7 @@ PATCHES = {
     # Viola: a bigger body, so a lower peak and a fuller pulse
     'viola': dict(lmms2mid.PATCHES['violin'], osc2_wave='wide', cutoff=1800, l_attack=0.1, osc3_detune=1.08,
                   volume=0.55, pan=0.45, mod=15),
-    'cello': dict(osc1_range="8'", osc1_wave='saw', osc2_range="16'", osc2_wave='tri', osc2_level=0.4,
-                  osc1_level=0.8, cutoff=600, emphasis=0.1, contour=0.35, kbd=1, f_attack=0.04, f_decay=0.5,
-                  f_sustain=0.5, l_attack=0.04, l_decay=0.3, l_sustain=0.85, decay_sw=1, volume=0.7, pan=0.3),
+    'cello': dict(lmms2mid.PATCHES['cello'], volume=0.7, pan=0.3),
     'bass': dict(osc1_range="16'", osc1_wave='saw', osc2_range="16'", osc2_wave='tri', osc2_level=0.5,
                  osc1_level=0.75, cutoff=330, emphasis=0.1, contour=0.35, kbd=1, f_attack=0.03, f_decay=0.4,
                  f_sustain=0.4, l_attack=0.03, l_decay=0.3, l_sustain=0.85, decay_sw=1, volume=0.7, pan=0.1),
@@ -272,6 +270,7 @@ def build():
         p = dict(PATCHES[name])
         p['volume'] *= SONG_LEVEL
         mod = p.pop('mod', 0)          # Mod wheel: the inner strings' constant vibrato
+        p.pop('bowed', None)
         seq.at(t, demos.patch(ch, **p) + [(0xB0 | ch, 1, mod)])
         t += 0.05
     end_beat = TOTAL_BEATS
@@ -411,6 +410,13 @@ def build():
                 continue
             last[key][3] = max(0.02, n[0] - last[key][0] - 0.005)
         last[key] = n
+    # Bowing on the cello: volume, brightness and vibrato move within every note
+    cello = [(t0, dur) for t0, ch, pitch, dur, vel in pending if ch == CH['cello'] and dur > 0]
+    for i, b in enumerate(PASS_START):
+        t_start = sec(b)
+        t_end = sec(PASS_START[i + 1]) if i + 1 < len(PASS_START) else 1e9
+        lmms2mid.bow(seq, CH['cello'], [n for n in cello if t_start - 0.01 <= n[0] < t_end - 0.01],
+                     PATCHES['cello']['volume'] * SONG_LEVEL, PATCHES['cello']['cutoff'] * BRIGHT[i])
     for t0, ch, pitch, dur, vel in pending:
         if dur > 0:
             seq.note(t0, ch, pitch, dur, vel)

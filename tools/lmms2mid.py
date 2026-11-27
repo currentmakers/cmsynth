@@ -40,6 +40,23 @@ PATCHES = {
     'pluck': dict(osc1_range="8'", osc1_wave='narrow', osc2_on=0, cutoff=600, emphasis=0.7, contour=0.7, kbd=3,
                   f_attack=0.001, f_decay=0.18, f_sustain=0.0, l_attack=0.001, l_decay=0.4, l_sustain=0.0,
                   decay_sw=1),
+    # Church organ for continuo: flue pipes at 8' and 4' (slightly detuned, as two
+    # ranks never quite agree) and a quiet 16', with the gentle speech of a pipe
+    # Spinet (a small harpsichord) for continuo: a quill plucking a thin, bright
+    # string - narrow pulse and a 4' saw, a filter that closes fast, no sustain
+    'spinet': dict(osc1_range="8'", osc1_wave='narrow', osc1_level=0.8, osc2_range="4'", osc2_wave='saw',
+                   osc2_level=0.35, cutoff=1200, emphasis=0.3, contour=0.75, kbd=3, f_attack=0.001, f_decay=0.2,
+                   f_sustain=0.0, l_attack=0.001, l_decay=0.5, l_sustain=0.0, decay_sw=1),
+    # Theorbo (a large lute with long bass strings): plucked gut, warmer and
+    # rounder than the spinet, a filter that opens briefly on the pluck
+    'theorbo': dict(osc1_range="8'", osc1_wave='tri', osc1_level=0.8, osc2_range="8'", osc2_wave='saw',
+                    osc2_detune=0.03, osc2_level=0.3, cutoff=700, emphasis=0.25, contour=0.5, kbd=2,
+                    f_attack=0.001, f_decay=0.25, f_sustain=0.1, l_attack=0.002, l_decay=0.9, l_sustain=0.0,
+                    decay_sw=1),
+    'church_organ': dict(osc1_range="8'", osc1_wave='tri', osc1_level=0.6, osc2_range="4'", osc2_wave='tri',
+                         osc2_detune=0.04, osc2_level=0.35, osc3_range="16'", osc3_wave='tri', osc3_level=0.3,
+                         osc3_on=1, cutoff=2500, emphasis=0.0, contour=0.0, kbd=1, l_attack=0.08, l_decay=0.2,
+                         l_sustain=1.0, decay_sw=1),
     'organ': dict(osc1_range="8'", osc1_wave='square', osc2_range="4'", osc2_wave='square', osc2_detune=0.0,
                   osc2_level=0.5, osc3_range="16'", osc3_wave='tri', osc3_level=0.4, osc3_on=1,
                   cutoff=3000, emphasis=0.0, contour=0.0, kbd=2, l_attack=0.003, l_decay=0.08, l_sustain=1.0,
@@ -75,9 +92,15 @@ PATCHES = {
                    contour=0.2, kbd=0, f_attack=0.12, f_decay=0.5, f_sustain=0.8, l_attack=0.09, l_decay=0.3,
                    l_sustain=0.9, decay_sw=1, osc3_range='LO', osc3_wave='tri', osc3_kbd=0, osc3_detune=1.02,
                    osc3_on=0, osc_mod=1, filter_mod=1, mod_mix=0.0, mod=21),
-    'cello': dict(osc1_range="8'", osc1_wave='saw', osc2_range="16'", osc2_wave='tri', osc2_level=0.4,
-                  osc1_level=0.8, cutoff=500, emphasis=0.1, contour=0.3, kbd=1, f_attack=0.05, f_decay=0.6,
-                  f_sustain=0.6, l_attack=0.04, l_decay=0.35, l_sustain=0.9, decay_sw=1),
+    # Cello, tuned against recordings of a real one the same way as the violin:
+    # saw and narrow pulse for the body's uneven harmonics, a fixed resonant
+    # peak lower down (1.6 kHz) for the bigger body, a bow attack with a little
+    # noise and a slower, gentler vibrato that also moves the filter.
+    'cello': dict(osc1_range="8'", osc1_wave='saw', osc1_level=0.6, osc2_range="8'", osc2_wave='narrow',
+                  osc2_detune=0.0, osc2_level=0.5, noise_on=1, noise_level=0.05, cutoff=1600, emphasis=0.38,
+                  contour=0.25, kbd=0, f_attack=0.15, f_decay=0.6, f_sustain=0.7, l_attack=0.14, l_decay=2.0,
+                  l_sustain=0.75, decay_sw=1, osc3_range='LO', osc3_wave='tri', osc3_kbd=0, osc3_detune=0.75,
+                  osc3_on=0, osc_mod=1, filter_mod=1, mod_mix=0.0, mod=0, bowed=True),
     # TB-303 style (LMMS's LB302): one saw through a resonant, snappy filter
     'acid': dict(osc1_range="8'", osc1_wave='saw', osc2_on=0, cutoff=350, emphasis=0.75, contour=0.7, kbd=1,
                  f_attack=0.001, f_decay=0.15, f_sustain=0.05, l_attack=0.002, l_decay=0.2, l_sustain=0.8,
@@ -144,10 +167,15 @@ SONGS = {
     # Three violins in canon, each with its own colour and place, over the cello's ground bass
     'pachalbel canon in d - 4 voices': {
         '_name': 'canon',
-        'Track 1': ('violin', dict(pan=-0.6)),
-        'Track 2': ('violin', dict(cutoff=2200, osc3_detune=0.9, pan=0.6)),
-        'Track 3': ('violin', dict(osc2_wave='wide', cutoff=3000, emphasis=0.45, osc3_detune=1.12, pan=0.0)),
-        'Track 4': 'cello',
+        # Warmer than the solo violin patch, like an ensemble in a church
+        'Track 1': ('violin', dict(cutoff=1900, pan=-0.6)),
+        'Track 2': ('violin', dict(cutoff=1700, osc3_detune=0.9, pan=0.6)),
+        'Track 3': ('violin', dict(osc2_wave='wide', cutoff=2200, emphasis=0.45, osc3_detune=1.12, pan=0.0)),
+        'Track 4': ('cello', dict(cutoff=1200)),
+        # Continuo: a spinet plucking the chord of every bass note, and a theorbo
+        # breaking it upwards from the bass an octave down, like a lute player
+        '_continuo': [dict(bass='Track 4', key='D', patch='spinet', level=0.4, pan=0.35),
+                      dict(bass='Track 4', key='D', patch='theorbo', style='arpeggio', level=0.45, pan=-0.3)],
     },
     # mute_bass.ds sounds around A2, LMMS plays it 15 semitones up from its base note
     # Levels matched by recording the line out (peaks around -1 dBFS)
@@ -255,6 +283,75 @@ def model_value(elem, name, default):
     return default, None
 
 
+def bow(seq, ch, notes, volume, cutoff, vibrato=18):
+    """Bowing for a one-note-at-a-time string part: per-note automation on its
+    channel, so a note is not a static organ tone.  notes: [(start s, length s)].
+      volume (CC 7):   starts at 70%, swells to 100% at a third of the stroke,
+                       eases to 80% at the end (bow speed and pressure)
+      cutoff:          follows the same curve, -0.6 to 0 octaves (pressure
+                       makes the string brighter)
+      vibrato (CC 1):  fades in from 30% of the note, short notes get little"""
+    import math
+    steps = 10
+    for t, length in notes:
+        for i in range(steps + 1):
+            x = i / steps
+            curve = 0.7 + 0.3 * math.sin(math.pi / 2 * min(1.0, x * 3)) if x < 1 / 3 else 1.0 - 0.2 * (x - 1 / 3) * 1.5
+            ts = t + x * length * 0.95
+            seq.at(ts, [(0xB0 | ch, 7, demos.lin(volume * curve * demos.LEVEL))])
+            seq.at(ts, demos.cutoff_ev(ch, cutoff * 2 ** (-0.6 * (1 - (curve - 0.7) / 0.3))))
+            depth = vibrato * max(0.0, min(1.0, (x - 0.3) / 0.4)) * min(1.0, length / 1.0)
+            seq.at(ts, [(0xB0 | ch, 1, round(depth))])
+
+
+KEYS = dict(C=0, G=7, D=2, A=9, E=4, F=5)
+
+
+def continuo(seq, ch, bass, key, style='chords'):
+    """Continuo over a bass line: the diatonic triad on every bass note, voiced
+    around G3-G4 with the smallest movement from the previous chord.
+      chords   (spinet, harpsichord): spread lightly from the bottom and struck
+               again, softer, halfway through a long bass note
+      arpeggio (theorbo, lute): the bass note an octave down, then the chord
+               broken upwards an octave lower, four notes to the bass note
+      held     (organ): held until the next bass note"""
+    scale = [(KEYS[key] + i) % 12 for i in (0, 2, 4, 5, 7, 9, 11)]
+    bass = sorted(bass)
+    prev = [62, 66, 69]
+    for i, (t, length, note, v) in enumerate(bass):
+        if note % 12 not in scale:
+            continue
+        d = scale.index(note % 12)
+        classes = [scale[(d + k) % 7] for k in (0, 2, 4)]
+        # Every voicing of the triad in range, closest to the previous chord
+        options = []
+        for a in range(55, 68):
+            for b in range(a + 1, a + 12):
+                for c in range(b + 1, a + 13):
+                    if sorted(x % 12 for x in (a, b, c)) == sorted(classes) and c <= 70:
+                        options.append([a, b, c])
+        chord = min(options, key=lambda o: sum(abs(x - y) for x, y in zip(o, prev)))
+        end = bass[i + 1][0] if i + 1 < len(bass) and bass[i + 1][0] - t < length * 2 + 0.5 else t + length
+        if style == 'chords':
+            strikes = [(t, 80)] + ([(t + (end - t) / 2, 55)] if end - t > 1.0 else [])
+            for ts, vel in strikes:
+                for k, p in enumerate(chord):
+                    seq.note(ts + 0.018 * k, ch, p, 0.3, vel)
+        elif style == 'arpeggio':
+            low = note - 12
+            while low < 36:
+                low += 12
+            notes = [low] + [p - 12 for p in chord]
+            step = (end - t) / 4 if end - t > 1.0 else (end - t) / 2
+            for k, p in enumerate(notes[:4] if end - t > 1.0 else notes[:2]):
+                seq.note(t + k * step, ch, p, 0.3, 85 if k == 0 else 62)
+        else:
+            for p in chord:
+                seq.note(t, ch, p, max(0.05, end - t - 0.02), 70)
+        prev = chord
+    return len(bass)
+
+
 def convert(path):
     root = load(path)
     song = root.find('song')
@@ -279,6 +376,7 @@ def convert(path):
     def send_patch(ch, p):
         p = dict(p)
         mod = p.pop('mod', 0)       # Mod wheel (CC 1), e.g. a constant vibrato
+        p.pop('bowed', None)
         seq.at(patch_time[0], demos.patch(ch, **p) + [(0xB0 | ch, 1, mod)])
         patch_time[0] += PATCH_SPACING
 
@@ -316,6 +414,7 @@ def convert(path):
         tracks = [(t, pl) for t, pl in tracks if t.get('muted') != '1']
 
     channel_of = {}
+    track_notes_by_name = {}
     for track, placements in tracks:
         it = track.find('instrumenttrack')
         raw = track_notes(track, placements)
@@ -386,12 +485,27 @@ def convert(path):
             continue
         for t, length, key, v in raw:
             seq.note(sec(t), ch, key + shift, length / tps, vel(v))
+        track_notes_by_name[name] = [(sec(t), length / tps, key + shift, v) for t, length, key, v in raw]
+        if p.get('bowed') and not shared:
+            bow(seq, ch, [(sec(t), length / tps) for t, length, _, _ in raw],
+                song_level * level * vol / 100, p['cutoff'])
         # Volume automation -> CC 7
         for t, v in automation.get(vol_id, []) if vol_id and not shared else []:
             seq.at(sec(t), [(0xB0 | ch, 7, demos.lin(song_level * level * v / 100 * demos.LEVEL))])
         keys = sorted(k + shift for _, _, k, _ in raw)
         report.append(f'{name} [{plugin}]: channel {ch + 1}{shared}, {pname} patch, {len(raw)} notes, '
                       f'median note {keys[len(keys) // 2]}')
+
+    conts = overrides.get('_continuo', [])
+    for cont in conts if isinstance(conts, list) else [conts]:
+        if not (track_notes_by_name.get(cont['bass']) and free):
+            continue
+        ch = free.pop(0)
+        pname = cont.get('patch', 'spinet')
+        send_patch(ch, {**PATCHES[pname], 'volume': song_level * cont.get('level', 0.4), 'pan': cont.get('pan', 0.0)})
+        style = cont.get('style', 'chords' if pname != 'church_organ' else 'held')
+        n = continuo(seq, ch, track_notes_by_name[cont['bass']], cont.get('key', 'C'), style)
+        report.append(f"continuo ({pname}, {style}): channel {ch + 1}, {n} chords over {cont['bass']}")
 
     end = max(t for t, _ in seq.ev)
     return seq, end, report, bpm
