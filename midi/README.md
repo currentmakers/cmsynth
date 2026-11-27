@@ -64,9 +64,9 @@ RP2354. On the F407's 8 voices it plays too, but a few
 cymbal tails get cut short when everything hits at once.
 
 Drums have sharp peaks, so normalising the recording to its peak leaves it
-quiet. `samples/drum-solo.mp3` is brought to -14 LUFS (about as loud as the
-other demos) with a limiter on the peaks; `samples/drumkit-test.mp3` is only
-peak normalised, so each drum is heard as it is.
+quiet. The drum mp3s are brought up with a limiter on the peaks:
+`samples/drum-solo.mp3` to -11 LUFS, `samples/drumkit-test.mp3` to -16 LUFS
+(gentler, so the single hits keep their attack).
 
 ### Bach's Air
 
