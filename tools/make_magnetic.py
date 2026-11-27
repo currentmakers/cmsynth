@@ -5,8 +5,10 @@ Usage: tools/make_magnetic.py        (writes midi/magnetic-fields-2.mid)
 
 The notes come from a General MIDI file (tools/magnetic-fields-2-source.mid,
 "(C)1994 Heavenly Music", 51 s).  It is rearranged into a longer piece from its
-own sections, at the original record's tempo (a bar of 1.25 s), with patches
-inspired by the sound of the original:
+own sections, at the original record's tempo (a bar of 1.25 s).  The patches
+were matched against a rendering of the source file in LMMS (General MIDI
+sounds), section by section: spectrum and the level each part adds (within
+about 1 dB).  --plain OUT writes the source as it is, for that comparison:
 
   lead      bright square and saw with glide; the file's pitch bends and mod
             wheel pass through (the mod wheel scaled down for a gentle vibrato)
@@ -14,8 +16,8 @@ inspired by the sound of the original:
   arpeggio  the resonant sequencer pluck, its filter opening and closing
             over the sections
   bass      saw and square with a punchy filter
-  pulse     a resonant "plop" panned back and forth by the file's own pan
-            automation, Jarre's wandering percussion
+  pulse     piano-like (a General MIDI piano in the source), panned back and
+            forth by the file's own pan automation
   drums     kick, snare, hi-hats (with choke), crash and splash from drumkit.py
 
 The composition is Jean-Michel Jarre's and still under copyright: this is in
@@ -33,6 +35,7 @@ import make_midis           # noqa: E402
 HERE = os.path.dirname(os.path.abspath(__file__))
 SOURCE = os.path.join(HERE, 'magnetic-fields-2-source.mid')
 BPM = 192.0                 # the original record: a bar of four beats in 1.25 s
+SOURCE_BPM = 182.0          # the source MIDI file's own tempo
 BEAT = 60.0 / BPM
 BAR = 4 * BEAT
 SONG_LEVEL = 0.5
@@ -109,20 +112,23 @@ PARTS = {
                             f_attack=0.3, f_decay=1.0, f_sustain=0.9, l_attack=0.15, l_decay=0.6, l_sustain=0.9,
                             decay_sw=1, volume=0.65, pan=0.0)),
     11: ('arpeggio', 2, dict(osc1_range="8'", osc1_wave='saw', osc1_level=0.7, osc2_range="8'", osc2_wave='square',
-                             osc2_detune=0.05, osc2_level=0.5, cutoff=600, emphasis=0.7, contour=0.6, kbd=2,
-                             f_attack=0.001, f_decay=0.13, f_sustain=0.1, l_attack=0.002, l_decay=0.22,
-                             l_sustain=0.3, decay_sw=1, volume=0.55, pan=0.0)),
+                             osc2_detune=0.05, osc2_level=0.5, cutoff=1200, emphasis=0.5, contour=0.5, kbd=2,
+                             f_attack=0.001, f_decay=0.13, f_sustain=0.2, l_attack=0.002, l_decay=0.22,
+                             l_sustain=0.4, decay_sw=1, volume=1.0, pan=0.0)),
     3: ('bass', 3, dict(osc1_range="8'", osc1_wave='saw', osc1_level=0.8, osc2_range="8'", osc2_wave='square',
-                        osc2_detune=0.04, osc2_level=0.6, cutoff=380, emphasis=0.5, contour=0.5, kbd=1,
+                        osc2_detune=0.04, osc2_level=0.6, cutoff=1000, emphasis=0.3, contour=0.5, kbd=1,
                         f_attack=0.001, f_decay=0.15, f_sustain=0.2, l_attack=0.003, l_decay=0.3, l_sustain=0.6,
-                        decay_sw=1, drive=0.3, volume=0.5, pan=0.0)),
-    1: ('pulse', 4, dict(osc1_range="4'", osc1_wave='tri', osc1_level=0.8, osc2_on=0, cutoff=320, emphasis=0.85,
-                         contour=0.6, kbd=3, f_attack=0.001, f_decay=0.05, f_sustain=0.0, l_attack=0.001,
-                         l_decay=0.12, l_sustain=0.0, decay_sw=1, volume=0.6, pan=0.0)),
+                        decay_sw=1, drive=0.3, volume=0.38, pan=0.0)),
+    # The pulse: a General MIDI piano in the source, so piano-like: saw and
+    # triangle at the note's own pitch, a filter that closes as it decays
+    1: ('pulse', 4, dict(osc1_range="8'", osc1_wave='saw', osc1_level=0.7, osc2_range="8'", osc2_wave='tri',
+                         osc2_level=0.5, cutoff=1200, emphasis=0.1, contour=0.4, kbd=2, f_attack=0.001,
+                         f_decay=0.3, f_sustain=0.0, l_attack=0.001, l_decay=0.5, l_sustain=0.0, decay_sw=1,
+                         volume=0.85, pan=0.0)),
     12: ('interlude', 5, dict(osc1_range="8'", osc1_wave='narrow', osc1_level=0.7, osc2_range="8'", osc2_wave='square',
-                              osc2_detune=0.06, osc2_level=0.4, cutoff=2600, emphasis=0.35, contour=0.4, kbd=2,
+                              osc2_detune=0.06, osc2_level=0.4, cutoff=1000, emphasis=0.35, contour=0.4, kbd=2,
                               f_attack=0.001, f_decay=0.2, f_sustain=0.3, l_attack=0.002, l_decay=0.35,
-                              l_sustain=0.4, decay_sw=1, volume=0.5, pan=0.0)),
+                              l_sustain=0.4, decay_sw=1, volume=0.22, pan=0.0)),
     5: ('ending', 6, dict(osc1_range="8'", osc1_wave='square', osc1_level=0.6, osc2_range="8'", osc2_wave='saw',
                           osc2_detune=0.1, osc2_level=0.5, cutoff=2500, emphasis=0.3, contour=0.4, kbd=2,
                           f_attack=0.01, f_decay=0.4, f_sustain=0.5, l_attack=0.005, l_decay=0.6, l_sustain=0.5,
@@ -132,6 +138,8 @@ PARTS = {
 DRUM_MAP = {35: 'kick', 36: 'kick', 38: 'snare', 40: 'snare', 42: 'hat', 44: 'pedal', 46: 'open_hat',
             49: 'crash', 57: 'crash', 52: 'splash', 55: 'splash'}
 DRUM_CH = dict(kick=7, snare=8, hat=9, open_hat=10, crash=11, splash=12, pedal=13)
+# Drum levels matched to a rendering of the source (hi-hats up front, a soft kick)
+DRUM_LEVEL = dict(kick=0.5, snare=1.3, hat=1.9, open_hat=1.7, crash=1.3, splash=1.3, pedal=1.3)
 # The original is brighter than the first try: the arpeggio's filter sweeps scaled up
 ARP_BRIGHT = 1.8
 # Mod wheel from the file -> vibrato depth (the file's values are for a GM synth)
@@ -153,7 +161,10 @@ SECTIONS = [
 ]
 
 
-def build():
+def build(sections=None, bpm=None):
+    sections = sections or SECTIONS
+    beat_s = 60.0 / (bpm or BPM)
+    bar_s = 4 * beat_s
     notes, ctrl = read_smf(SOURCE)
     seq = demos.Seq()
     t = 0.0
@@ -164,7 +175,7 @@ def build():
         t += 0.05
     for drum, ch in DRUM_CH.items():
         p = dict(drumkit.KIT[drum][2])
-        p['volume'] *= SONG_LEVEL * (1.0 if drum == 'kick' else 1.3)
+        p['volume'] *= SONG_LEVEL * DRUM_LEVEL.get(drum, 1.3)
         mod = p.pop('mod', 0)
         seq.at(t, demos.patch(ch, **p) + [(0xB0 | ch, 1, mod)])
         t += 0.05
@@ -172,12 +183,12 @@ def build():
 
     pos = start                 # time of the current section's first bar
     open_hat = None
-    for b0, b1, opt in SECTIONS:
+    for b0, b1, opt in sections:
         mute = opt.get('mute', set())
         lo, hi = b0 * 4, b1 * 4
 
         def sec(beat):
-            return pos + (beat - lo) * BEAT
+            return pos + (beat - lo) * beat_s
 
         for beat, length, ch, key, vel in notes:
             if not lo <= beat < hi:
@@ -202,7 +213,7 @@ def build():
             if ch not in PARTS or PARTS[ch][0] in mute:
                 continue
             name, out, _ = PARTS[ch]
-            seq.note(sec(beat), out, key, max(0.03, length * BEAT), vel)
+            seq.note(sec(beat), out, key, max(0.03, length * beat_s), vel)
 
         for beat, ch, kind, a, b in ctrl:
             if not lo <= beat < hi or ch not in PARTS or PARTS[ch][0] in mute:
@@ -219,8 +230,8 @@ def build():
         c0, c1 = (c * ARP_BRIGHT for c in opt.get('arp', (600, 600)))
         n = (b1 - b0) * 4
         for k in range(n + 1):
-            seq.at(pos + k * BEAT, demos.cutoff_ev(PARTS[11][1], c0 * (c1 / c0) ** (k / n)))
-        pos += (b1 - b0) * BAR
+            seq.at(pos + k * beat_s, demos.cutoff_ev(PARTS[11][1], c0 * (c1 / c0) ** (k / n)))
+        pos += (b1 - b0) * bar_s
 
     # Let the ending ring, then everything off
     stop = pos + 3.0
@@ -232,10 +243,16 @@ def build():
 
 
 def main():
-    seq, length = build()
+    # --plain OUT: the source file as it is (its own tempo and order, the arpeggio's
+    # filter fixed), for comparing the patches with a rendering of the source
+    if len(sys.argv) > 2 and sys.argv[1] == '--plain':
+        seq, length = build([(0, 39, dict(arp=(PARTS[11][2]['cutoff'] / ARP_BRIGHT,) * 2))], SOURCE_BPM)
+        out = sys.argv[2]
+    else:
+        seq, length = build()
+        out = os.path.join(HERE, '..', 'midi', 'magnetic-fields-2.mid')
     make_midis.TEMPO_US = round(60e6 / BPM)
     make_midis.TICKS_PER_S = make_midis.PPQ * 1e6 / make_midis.TEMPO_US
-    out = os.path.join(HERE, '..', 'midi', 'magnetic-fields-2.mid')
     with open(out, 'wb') as f:
         f.write(make_midis.smf(seq, 'magnetic-fields-2'))
     notes = sum(1 for _, m in seq.ev if m[0] & 0xF0 == 0x90)

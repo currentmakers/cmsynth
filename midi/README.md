@@ -79,10 +79,14 @@ record's tempo (a bar in 1.25 s) and rearranges it into a longer piece from
 its own sections: an intro with drums and the panning pulse, a groove where
 the sequencer's filter opens, the theme and interlude, the second part, the
 theme again and the ending.
-The patches are inspired by the original record: a bright lead with glide
+The patches were matched against a rendering of the source file in LMMS
+(General MIDI sounds), section by section as the parts come in: the spectrum
+and the level each part adds, within about 1 dB (`make_magnetic.py --plain`
+writes the source as it is for that comparison). A bright lead with glide
 (the file's pitch bends and mod wheel pass through), a string machine of three
-detuned saws, the resonant sequencer pluck, a punchy bass, a resonant "plop"
-for the pulse that the file pans back and forth, and drums from the drum kit.
+detuned saws, the sequencer pluck, a bass with more overtones than sub, a
+piano-like pulse that the file pans back and forth, and drums from the drum
+kit with the hi-hats up front.
 
 The composition is Jean-Michel Jarre's and still under copyright, as is the
 source MIDI file: they are here for playing on the synth, not for videos or
