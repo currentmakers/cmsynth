@@ -24,7 +24,7 @@ its own channel:
 
 | Channel | Drum | Note | Made from |
 |---------|------|------|-----------|
-| 1 | Kick | 33 | Ringing filter at 55 Hz swept down from above, triangle body, a little noise for the beater |
+| 1 | Kick | 36 | Triangle at 65 Hz plus a drumhead overtone a fifth up, the filter sweeping down from above (the pitch drops from about 100 to 67 Hz), noise for the beater |
 | 2 | Snare | 55 | Two triangles (body) and noise through a falling filter |
 | 3 | Rim click | 72 | Narrow pulse and a short, resonant ping |
 | 4 | Hi-hat | 84 | Noise high up, very short |
@@ -33,16 +33,20 @@ its own channel:
 | 7 | Splash | 88 | Brighter and shorter |
 | 8 | Ride | 86 | A little more of the metal, a ping at the start |
 | 9 | Ride bell | 79 | Triangle and metal through a resonant peak, the one cymbal that is meant to ring |
-| 10-13 | Toms, high to floor | 55, 50, 45, 40 | Ringing filter tuned by the note (keyboard tracking), triangle body, the pitch bends down after the hit |
+| 10-13 | Toms, high to floor | 55, 50, 45, 40 | Triangle plus a drumhead overtone a fifth up, filter following the note (keyboard tracking) and opening briefly on the hit, noise for the stick |
 | 14 | Pedal hi-hat | 84 | The foot closing the hi-hat: darker and shorter |
 
-The hi-hats and cymbals are mostly noise, plus two high square waves that the
-noise frequency-modulates (noise as the modulation source, mod wheel CC 1 up).
-On their own two squares sound like a cowbell; with the noise FM they spread
-into a metallic shimmer. The filter is low-pass only, so high emphasis
-(0.7-0.8) with the cutoff at 9-11 kHz stands in for a band-pass: in a ladder
-filter emphasis lowers the passband, so the low noise drops away and the hiss
-stays high.
+The hi-hats and cymbals are noise plus two high square waves that the noise
+frequency-modulates (noise as the modulation source, mod wheel CC 1 up). On
+their own two squares sound like a cowbell; with the noise FM they spread into
+a metallic shimmer. The filter is low-pass only; emphasis lowers a ladder
+filter's passband, so cutoff and emphasis together shape where the energy sits.
+
+The drums were tuned against recordings of real drums (the samples on
+Wikipedia's bass drum, tom, hi-hat, crash and ride cymbal articles) by
+comparing octave band spectra: the cymbals put their energy around 2-8 kHz
+like the real ones, and the kick and toms have the overtones and stick/beater
+content of a drumhead instead of a pure tone.
 
 A note played again on the same channel retriggers that channel's voice, so
 every drum uses one voice, like a real drum: the whole kit never needs more
@@ -55,7 +59,7 @@ right).
 ghost notes, a ride groove, a funk groove with open hi-hat barks, a tom
 feature over four on the floor, flams and a snare roll, a double kick build,
 a breakdown and a finale. Velocity carries the dynamics and timing and
-velocity are slightly humanised. It peaks at 9 voices and 17% CPU on the
+velocity are slightly humanised. It peaks at 8 voices and 15% CPU on the
 RP2354. On the F407's 8 voices it plays too, but a few
 cymbal tails get cut short when everything hits at once.
 

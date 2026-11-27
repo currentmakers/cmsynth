@@ -4,11 +4,14 @@
 Usage: tools/drumkit.py              (writes midi/drumkit-test.mid: every drum on its own)
 
 cmsynth has one patch per channel, so the kit is spread over 14 channels.
-Drums made from the ladder filter ring at their own pitch: the filter is close
-to self-oscillation, keyboard tracking is full (so the note tunes the drum) and
-a fast filter contour bends the pitch down after the hit.  Hi-hats and cymbals
-are mostly noise, plus two high square waves frequency-modulated by the noise
-(mod wheel up, noise as the modulation source) for the metallic shimmer.
+Kick and toms are a triangle plus a second one a fifth up (a drumhead's first
+overtone is about 1.5 times the fundamental), with noise for the beater or
+stick and a filter that opens briefly on the hit and sweeps down, which also
+bends the pitch down.  The toms follow the note (keyboard tracking), so the
+note tunes them.  Hi-hats and cymbals are noise plus two high square waves
+frequency-modulated by the noise (mod wheel up, noise as the modulation
+source) for the metallic shimmer.  The drums were tuned against recordings of
+real drums by comparing octave band spectra.
 
 The open hi-hat has its decay switch off, so a note off chokes it within 5 ms:
 the Drummer sends that note off whenever the closed or pedal hi-hat is played,
@@ -30,9 +33,10 @@ METAL = dict(osc1_range="2'", osc1_wave='square', osc2_range="2'", osc2_wave='sq
 
 # name: (channel, note, patch).  Pan as seen from the drummer's seat.
 KIT = {
-    'kick': (0, 33, dict(osc1_range="8'", osc1_wave='tri', osc1_level=1.0, osc2_on=0, noise_on=1, noise_level=0.15,
-                         cutoff=55, emphasis=0.9, contour=0.65, kbd=0, f_attack=0.001, f_decay=0.04,
-                         f_sustain=0.0, l_attack=0.001, l_decay=0.45, l_sustain=0.0, decay_sw=1, drive=0.7,
+    'kick': (0, 36, dict(osc1_range="8'", osc1_wave='tri', osc1_level=0.7, osc2_range="8'", osc2_wave='tri',
+                         osc2_detune=7.0, osc2_level=0.4, noise_on=1, noise_level=0.5,
+                         cutoff=200, emphasis=0.5, contour=0.65, kbd=0, f_attack=0.001, f_decay=0.06,
+                         f_sustain=0.0, l_attack=0.001, l_decay=0.2, l_sustain=0.0, decay_sw=1, drive=1.0,
                          volume=1.0, pan=0.0)),
     'snare': (1, 55, dict(osc1_range="8'", osc1_wave='tri', osc1_level=0.7, osc2_range="8'", osc2_wave='tri',
                           osc2_detune=7.0, osc2_level=0.4, noise_on=1, noise_level=1.0, cutoff=4500, emphasis=0.25,
@@ -43,34 +47,35 @@ KIT = {
                         l_attack=0.001, l_decay=0.07, l_sustain=0.0, decay_sw=1, volume=0.6, pan=0.05)),
     # High emphasis lowers the ladder's passband, so with the cutoff high up it
     # works as a band-pass: the hiss stays high and the low noise drops away.
-    'hat': (3, 84, dict(METAL, osc1_level=0.06, osc2_level=0.05, mod=127, cutoff=10000, emphasis=0.8,
-                        contour=0.15, f_attack=0.001, f_decay=0.03, f_sustain=0.0, l_attack=0.001, l_decay=0.05,
-                        l_sustain=0.0, decay_sw=1, drive=0.2, volume=0.65, pan=-0.45)),
-    'open_hat': (4, 84, dict(METAL, osc1_level=0.06, osc2_level=0.05, mod=127, cutoff=9500, emphasis=0.8,
+    'hat': (3, 84, dict(METAL, osc1_level=0.14, osc2_level=0.12, mod=100, cutoff=11000, emphasis=0.3,
+                        contour=0.15, f_attack=0.001, f_decay=0.03, f_sustain=0.0, l_attack=0.001, l_decay=0.09,
+                        l_sustain=0.0, decay_sw=1, drive=0.0, volume=0.5, noise_level=0.75, pan=-0.45)),
+    'open_hat': (4, 84, dict(METAL, osc1_level=0.14, osc2_level=0.12, mod=100, cutoff=10000, emphasis=0.3,
                              contour=0.2, f_attack=0.001, f_decay=0.3, f_sustain=0.3, l_attack=0.001,
-                             l_decay=0.7, l_sustain=0.0, decay_sw=0, drive=0.2, volume=0.6, pan=-0.45)),
-    'crash': (5, 82, dict(METAL, osc1_level=0.08, osc2_level=0.08, mod=127, cutoff=9000, emphasis=0.7, contour=0.3,
+                             l_decay=0.7, l_sustain=0.0, decay_sw=0, drive=0.0, volume=0.45, noise_level=0.75, pan=-0.45)),
+    'crash': (5, 82, dict(METAL, osc1_level=0.16, osc2_level=0.16, mod=100, cutoff=5000, emphasis=0.4, contour=0.4,
                           f_attack=0.001, f_decay=0.9, f_sustain=0.3, l_attack=0.001, l_decay=2.2, l_sustain=0.0,
-                          decay_sw=1, drive=0.3, volume=1.0, pan=-0.55)),
-    'splash': (6, 88, dict(METAL, osc1_level=0.08, osc2_level=0.08, mod=127, cutoff=11000, emphasis=0.75,
+                          decay_sw=1, drive=0.1, volume=0.7, noise_level=0.75, pan=-0.55)),
+    'splash': (6, 88, dict(METAL, osc1_level=0.16, osc2_level=0.16, mod=100, cutoff=6500, emphasis=0.45,
                            contour=0.2, f_attack=0.001, f_decay=0.4, f_sustain=0.3, l_attack=0.001, l_decay=1.0,
-                           l_sustain=0.0, decay_sw=1, drive=0.3, volume=0.8, pan=0.6)),
+                           l_sustain=0.0, decay_sw=1, drive=0.1, volume=0.55, noise_level=0.75, pan=0.6)),
     # The ride keeps a bit more of its squares for the "ping"
-    'ride': (7, 86, dict(METAL, osc1_level=0.15, osc2_level=0.12, noise_level=0.8, mod=127, cutoff=8500,
-                         emphasis=0.7, contour=0.35, f_attack=0.001, f_decay=0.06, f_sustain=0.45, l_attack=0.001,
-                         l_decay=1.6, l_sustain=0.0, decay_sw=1, drive=0.2, volume=0.6, pan=0.45)),
+    'ride': (7, 86, dict(METAL, osc1_level=0.22, osc2_level=0.18, noise_level=0.6, mod=100, cutoff=8000,
+                         emphasis=0.3, contour=0.35, f_attack=0.001, f_decay=0.06, f_sustain=0.45, l_attack=0.001,
+                         l_decay=1.6, l_sustain=0.0, decay_sw=1, drive=0.0, volume=0.55, pan=0.45)),
     'bell': (8, 79, dict(METAL, osc1_range="4'", osc1_wave='tri', osc1_level=0.35, osc2_level=0.25, noise_level=0.3,
                          mod=90, cutoff=6000, emphasis=0.6, contour=0.3, f_attack=0.001, f_decay=0.1, f_sustain=0.4,
                          l_attack=0.001, l_decay=1.2, l_sustain=0.0, decay_sw=1, drive=0.3, volume=0.6, pan=0.45)),
     # Pedal hi-hat: the foot closing the hi-hat, darker and shorter than a stick hit
-    'pedal': (13, 84, dict(METAL, osc1_level=0.04, osc2_level=0.03, mod=127, cutoff=7000, emphasis=0.75,
-                           contour=0.1, f_attack=0.001, f_decay=0.02, f_sustain=0.0, l_attack=0.001, l_decay=0.04,
-                           l_sustain=0.0, decay_sw=1, volume=0.55, pan=-0.45)),
+    'pedal': (13, 84, dict(METAL, osc1_level=0.1, osc2_level=0.08, mod=100, cutoff=9000, emphasis=0.2,
+                           contour=0.1, f_attack=0.001, f_decay=0.02, f_sustain=0.0, l_attack=0.001, l_decay=0.07,
+                           l_sustain=0.0, decay_sw=1, volume=0.5, noise_level=0.75, pan=-0.45)),
 }
 # Toms: the note tunes both the triangle body and the ringing filter
-TOM = dict(osc1_range="8'", osc1_wave='tri', osc1_level=0.8, osc2_on=0, noise_on=1, noise_level=0.2,
-           cutoff=261.6, emphasis=0.92, contour=0.25, kbd=3, f_attack=0.001, f_decay=0.15, f_sustain=0.0,
-           l_attack=0.001, l_sustain=0.0, decay_sw=1, drive=0.3, volume=0.9)
+TOM = dict(osc1_range="8'", osc1_wave='tri', osc1_level=1.0, osc2_range="8'", osc2_wave='tri', osc2_detune=7.0,
+           osc2_level=0.45, noise_on=1, noise_level=0.9,
+           cutoff=1000, emphasis=0.4, contour=0.5, kbd=3, f_attack=0.001, f_decay=0.1, f_sustain=0.0,
+           l_attack=0.001, l_sustain=0.0, decay_sw=1, drive=0.3, volume=0.62)
 for name, ch, note, decay, pan in (('tom1', 9, 55, 0.45, -0.45), ('tom2', 10, 50, 0.55, -0.15),
                                    ('tom3', 11, 45, 0.65, 0.2), ('floor', 12, 40, 0.8, 0.5)):
     KIT[name] = (ch, note, dict(TOM, l_decay=decay, pan=pan))
