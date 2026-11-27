@@ -13,13 +13,13 @@ its own sound no matter what the synth was doing before.
 | `popcorn2.mid` | 1-8, 10-14 | Popcorn, converted from an LMMS project with `tools/lmms2mid.py` (2:34) |
 | `canon.mid` | 1-4 | Pachelbel's Canon in D: three violins in canon (left, right, centre) over the cello, converted from LMMS (11:43) |
 | `bach-air.mid` | 1-14 | Bach's Air (BWV 1068), a grand orchestral arrangement made with `tools/make_air.py` (3:49) |
-| `drum-solo.mid` | 1-13 | A drum solo on the drum kit below, made with `tools/make_drum_solo.py` (1:47) |
-| `drumkit-test.mid` | 1-13 | Every drum of the kit on its own, three strengths each (1:05) |
+| `drum-solo.mid` | 1-14 | A drum solo on the drum kit below, made with `tools/make_drum_solo.py` (1:47) |
+| `drumkit-test.mid` | 1-14 | Every drum of the kit on its own, three strengths each (1:05) |
 
 ### Drum kit
 
-A complete drum kit made only with patch CCs, no firmware changes
-(`tools/drumkit.py`). A cmsynth patch belongs to a channel, so each drum gets
+A complete drum kit made only with patch CCs and the mod wheel, no firmware
+changes (`tools/drumkit.py`). A cmsynth patch belongs to a channel, so each drum gets
 its own channel:
 
 | Channel | Drum | Note | Made from |
@@ -27,17 +27,26 @@ its own channel:
 | 1 | Kick | 33 | Ringing filter at 55 Hz swept down from above, triangle body, a little noise for the beater |
 | 2 | Snare | 55 | Two triangles (body) and noise through a falling filter |
 | 3 | Rim click | 72 | Narrow pulse and a short, resonant ping |
-| 4 | Hi-hat | 72 (60 = pedal) | Noise and three detuned square waves (the metal), very short |
-| 5 | Open hi-hat | 72 | The same, longer, choked by the next closed or pedal hi-hat |
-| 6 | Crash | 70 | Metal and noise, long decay |
-| 7 | Splash | 76 | Brighter and shorter |
-| 8 | Ride | 74 | More metal, less noise, a ping at the start |
-| 9 | Ride bell | 79 | Triangle and metal through a resonant peak |
+| 4 | Hi-hat | 84 | Noise high up, very short |
+| 5 | Open hi-hat | 84 | The same, longer, choked by the next closed or pedal hi-hat |
+| 6 | Crash | 82 | Noise high up, long decay |
+| 7 | Splash | 88 | Brighter and shorter |
+| 8 | Ride | 86 | A little more of the metal, a ping at the start |
+| 9 | Ride bell | 79 | Triangle and metal through a resonant peak, the one cymbal that is meant to ring |
 | 10-13 | Toms, high to floor | 55, 50, 45, 40 | Ringing filter tuned by the note (keyboard tracking), triangle body, the pitch bends down after the hit |
+| 14 | Pedal hi-hat | 84 | The foot closing the hi-hat: darker and shorter |
+
+The hi-hats and cymbals are mostly noise, plus two high square waves that the
+noise frequency-modulates (noise as the modulation source, mod wheel CC 1 up).
+On their own two squares sound like a cowbell; with the noise FM they spread
+into a metallic shimmer. The filter is low-pass only, so high emphasis
+(0.7-0.8) with the cutoff at 9-11 kHz stands in for a band-pass: in a ladder
+filter emphasis lowers the passband, so the low noise drops away and the hiss
+stays high.
 
 A note played again on the same channel retriggers that channel's voice, so
 every drum uses one voice, like a real drum: the whole kit never needs more
-than about 14. The open hi-hat has its decay switch off, so a note off chokes
+than 14. The open hi-hat has its decay switch off, so a note off chokes
 it in 5 ms; the scripts send one whenever the closed or pedal hi-hat plays.
 Pan is from the drummer's seat (hi-hat and high tom left, ride and floor tom
 right).
@@ -46,7 +55,7 @@ right).
 ghost notes, a ride groove, a funk groove with open hi-hat barks, a tom
 feature over four on the floor, flams and a snare roll, a double kick build,
 a breakdown and a finale. Velocity carries the dynamics and timing and
-velocity are slightly humanised. It peaks at 10 voices and 17% CPU on the
+velocity are slightly humanised. It peaks at 9 voices and 17% CPU on the
 RP2354. On the F407's 8 voices it plays too, but a few
 cymbal tails get cut short when everything hits at once.
 
