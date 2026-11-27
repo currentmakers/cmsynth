@@ -24,7 +24,7 @@ its own channel:
 
 | Channel | Drum | Note | Made from |
 |---------|------|------|-----------|
-| 1 | Kick | 36 | Triangle at 65 Hz plus a drumhead overtone a fifth up, the filter sweeping down from above (the pitch drops from about 100 to 67 Hz), noise for the beater |
+| 1 | Kick | 36 | Triangle at 65 Hz and noise for the beater through a filter that starts high and closes below 65 Hz within about 60 ms: only the first few cycles get through, a thump with a falling pitch instead of a note |
 | 2 | Snare | 55 | Two triangles (body) and noise through a falling filter |
 | 3 | Rim click | 72 | Narrow pulse and a short, resonant ping |
 | 4 | Hi-hat | 84 | Noise high up, very short |
@@ -62,6 +62,11 @@ a breakdown and a finale. Velocity carries the dynamics and timing and
 velocity are slightly humanised. It peaks at 8 voices and 15% CPU on the
 RP2354. On the F407's 8 voices it plays too, but a few
 cymbal tails get cut short when everything hits at once.
+
+Drums have sharp peaks, so normalising the recording to its peak leaves it
+quiet. `samples/drum-solo.mp3` is brought to -14 LUFS (about as loud as the
+other demos) with a limiter on the peaks; `samples/drumkit-test.mp3` is only
+peak normalised, so each drum is heard as it is.
 
 ### Bach's Air
 
