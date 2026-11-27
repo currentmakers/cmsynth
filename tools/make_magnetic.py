@@ -147,7 +147,6 @@ SECTIONS = [
     (7, 11, dict(arp=(700, 1300))),                                   # groove: the arpeggio opens up
     (7, 11, dict(arp=(1300, 2000))),
     (11, 27, dict(arp=(1100, 1100))),                                 # theme and interlude
-    (27, 31, dict(arp=(1600, 500), mute={'drums', 'bass', 'pulse'})),  # breakdown: arpeggio and strings alone
     (27, 38, dict(arp=(700, 1200))),                                  # second part of the theme
     (11, 27, dict(arp=(1600, 1600))),                                 # theme again, arpeggio open
     (27, 39, dict(arp=(1400, 800))),                                  # second part and the ending

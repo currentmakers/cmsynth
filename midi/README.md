@@ -14,7 +14,7 @@ its own sound no matter what the synth was doing before.
 | `canon.mid` | 1-6 | Pachelbel's Canon in D: three violins in canon (left, right, centre) over the cello, with a spinet and a theorbo as continuo, converted from LMMS (5:39) |
 | `bach-air.mid` | 1-14 | Bach's Air (BWV 1068), a grand orchestral arrangement made with `tools/make_air.py` (3:49) |
 | `drum-solo.mid` | 1-14 | A drum solo on the drum kit below, made with `tools/make_drum_solo.py` (1:47) |
-| `magnetic-fields-2.mid` | 1-14 | Jean-Michel Jarre's Magnetic Fields, pt. 2, rearranged with `tools/make_magnetic.py` (1:42) |
+| `magnetic-fields-2.mid` | 1-14 | Jean-Michel Jarre's Magnetic Fields, pt. 2, rearranged with `tools/make_magnetic.py` (1:30) |
 | `drumkit-test.mid` | 1-14 | Every drum of the kit on its own, three strengths each (1:05) |
 
 ### Drum kit
@@ -77,8 +77,8 @@ MIDI file of Jean-Michel Jarre's Magnetic Fields, pt. 2
 script reads the file itself (no MIDI libraries), sets it to the original
 record's tempo (a bar in 1.25 s) and rearranges it into a longer piece from
 its own sections: an intro with drums and the panning pulse, a groove where
-the sequencer's filter opens, the theme and interlude, a breakdown with only
-the arpeggio and strings, the second part, the theme again and the ending.
+the sequencer's filter opens, the theme and interlude, the second part, the
+theme again and the ending.
 The patches are inspired by the original record: a bright lead with glide
 (the file's pitch bends and mod wheel pass through), a string machine of three
 detuned saws, the resonant sequencer pluck, a punchy bass, a resonant "plop"
