@@ -88,6 +88,28 @@ The first violins have vibrato from oscillator 3 that comes in on long notes
 (mod wheel ramps) and the trills are played out. 14 channels and up to 27
 voices at once, 50% CPU on the RP2354; it needs the RP2354's 32 voices.
 
+### Violins
+
+The violin patch (`violin` in `tools/lmms2mid.py`, used by the Canon and the
+Air) was tuned against a recording of a real violin (the open strings in
+"Violin sounds and techniques" on Wikipedia's violin article, and the vibrato
+in a Telemann sonata for two violins from the same article):
+
+- A saw and a narrow pulse at the same pitch: a plain saw has evenly falling
+  harmonics, a violin's jump up and down by around 10 dB from one to the next
+  because of the body's resonances. The mix gets about 7 dB, the plain saw had
+  3.5.
+- A resonant peak around 2.6 kHz that does not follow the note, like a body
+  resonance (the "bridge hill"). The old patch's filter at 1.3-1.5 kHz cut
+  that region away. Measured over the four open strings the patch now follows
+  the real violin within a few dB from 1 to 12 kHz.
+- The brightness grows over the first 0.1 s as the bow bites, and a little
+  noise is the bow.
+- Vibrato at 5.6 Hz and +/- 20 cents, the median measured on the real
+  violinist, from oscillator 3. It moves the filter slightly too, so the tone
+  flickers with the pitch as a real violin's harmonics move through its body
+  resonances. In the Canon every violin has a slightly different vibrato rate.
+
 ### Electronic demos from LMMS
 
 Converted from demo projects that ship with LMMS

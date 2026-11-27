@@ -64,10 +64,17 @@ PATCHES = {
                     f_attack=0.001, f_decay=0.03, f_sustain=0.0, l_attack=0.012, l_decay=0.035, l_sustain=0.0,
                     decay_sw=1, volume=1.0),
     # Bowed string leads: a soft attack and a short release that joins legato notes
-    'violin': dict(osc1_range="8'", osc1_wave='saw', osc2_range="8'", osc2_wave='saw', osc2_detune=0.08,
-                   osc1_level=0.7, osc2_level=0.6, cutoff=1400, emphasis=0.15, contour=0.25, kbd=2,
-                   f_attack=0.04, f_decay=0.5, f_sustain=0.6, l_attack=0.03, l_decay=0.25, l_sustain=0.85,
-                   decay_sw=1),
+    # Violin, tuned against a recording of a real one: a saw and a narrow pulse at
+    # the same pitch give the uneven harmonics a violin body makes, a resonant
+    # peak around 2.6 kHz that does not follow the note is the "bridge hill",
+    # the brightness grows as the bow bites, a little noise is the bow, and
+    # oscillator 3 is a 5.6 Hz vibrato (+/- 20 cents with mod 21) that also
+    # moves the filter slightly, so the tone flickers with the pitch.
+    'violin': dict(osc1_range="8'", osc1_wave='saw', osc1_level=0.6, osc2_range="8'", osc2_wave='narrow',
+                   osc2_detune=0.0, osc2_level=0.5, noise_on=1, noise_level=0.06, cutoff=2600, emphasis=0.5,
+                   contour=0.2, kbd=0, f_attack=0.12, f_decay=0.5, f_sustain=0.8, l_attack=0.09, l_decay=0.3,
+                   l_sustain=0.9, decay_sw=1, osc3_range='LO', osc3_wave='tri', osc3_kbd=0, osc3_detune=1.02,
+                   osc3_on=0, osc_mod=1, filter_mod=1, mod_mix=0.0, mod=21),
     'cello': dict(osc1_range="8'", osc1_wave='saw', osc2_range="16'", osc2_wave='tri', osc2_level=0.4,
                   osc1_level=0.8, cutoff=500, emphasis=0.1, contour=0.3, kbd=1, f_attack=0.05, f_decay=0.6,
                   f_sustain=0.6, l_attack=0.04, l_decay=0.35, l_sustain=0.9, decay_sw=1),
@@ -138,8 +145,8 @@ SONGS = {
     'pachalbel canon in d - 4 voices': {
         '_name': 'canon',
         'Track 1': ('violin', dict(pan=-0.6)),
-        'Track 2': ('violin', dict(osc2_wave='wide', osc2_detune=-0.06, cutoff=1200, pan=0.6)),
-        'Track 3': ('violin', dict(osc1_wave='trisaw', cutoff=1700, emphasis=0.25, pan=0.0)),
+        'Track 2': ('violin', dict(cutoff=2200, osc3_detune=0.9, pan=0.6)),
+        'Track 3': ('violin', dict(osc2_wave='wide', cutoff=3000, emphasis=0.45, osc3_detune=1.12, pan=0.0)),
         'Track 4': 'cello',
     },
     # mute_bass.ds sounds around A2, LMMS plays it 15 semitones up from its base note
@@ -270,7 +277,9 @@ def convert(path):
     patch_time = [0.0]
 
     def send_patch(ch, p):
-        seq.at(patch_time[0], demos.patch(ch, **p))
+        p = dict(p)
+        mod = p.pop('mod', 0)       # Mod wheel (CC 1), e.g. a constant vibrato
+        seq.at(patch_time[0], demos.patch(ch, **p) + [(0xB0 | ch, 1, mod)])
         patch_time[0] += PATCH_SPACING
 
     def sec(t): return LEAD_IN + t / tps

@@ -26,6 +26,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import demos                # noqa: E402
 import make_midis           # noqa: E402  (sets demos.LEVEL for files)
+import lmms2mid             # noqa: E402  (the violin patch)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 NOTES = os.path.join(HERE, 'bach-air-notes.ly')
@@ -188,22 +189,18 @@ CH = dict(vln1=0, vln1_8va=1, vln2=2, viola=3, cello=4, bass=5, harpsichord=6, o
           timpani=10, pedal=11, ensemble=12, celesta=13)
 
 PATCHES = {
-    'vln1': dict(osc1_range="8'", osc1_wave='saw', osc2_range="8'", osc2_wave='saw', osc2_detune=0.07,
-                 osc1_level=0.75, osc2_level=0.6, cutoff=1300, emphasis=0.15, contour=0.3, kbd=2,
-                 f_attack=0.06, f_decay=0.6, f_sustain=0.65, l_attack=0.07, l_decay=0.3, l_sustain=0.9,
-                 decay_sw=1, volume=0.8, pan=-0.2, **VIBRATO),
+    # Violins tuned against a recording of a real violin (see lmms2mid.py's
+    # 'violin'): saw and narrow pulse for the body's uneven harmonics, a fixed
+    # resonant peak for the bridge hill, vibrato that also moves the filter.
+    'vln1': dict(lmms2mid.PATCHES['violin'], volume=0.8, pan=-0.2, mod=0),
     'vln1_8va': dict(osc1_range="8'", osc1_wave='tri', osc2_range="8'", osc2_wave='narrow', osc2_detune=0.05,
                      osc1_level=0.8, osc2_level=0.3, cutoff=2600, emphasis=0.1, contour=0.2, kbd=2,
                      f_attack=0.1, f_decay=0.6, f_sustain=0.7, l_attack=0.1, l_decay=0.4, l_sustain=0.85,
                      decay_sw=1, volume=0.4, pan=0.3, **dict(VIBRATO, osc3_detune=1.15)),
-    'vln2': dict(osc1_range="8'", osc1_wave='saw', osc2_range="8'", osc2_wave='wide', osc2_detune=-0.06,
-                 osc1_level=0.7, osc2_level=0.5, cutoff=1100, emphasis=0.15, contour=0.25, kbd=2,
-                 f_attack=0.06, f_decay=0.6, f_sustain=0.6, l_attack=0.08, l_decay=0.3, l_sustain=0.9,
-                 decay_sw=1, volume=0.55, pan=-0.6),
-    'viola': dict(osc1_range="8'", osc1_wave='saw', osc2_range="8'", osc2_wave='wide', osc2_detune=0.06,
-                  osc1_level=0.7, osc2_level=0.5, cutoff=900, emphasis=0.15, contour=0.25, kbd=2,
-                  f_attack=0.06, f_decay=0.6, f_sustain=0.6, l_attack=0.08, l_decay=0.3, l_sustain=0.9,
-                  decay_sw=1, volume=0.55, pan=0.45),
+    'vln2': dict(lmms2mid.PATCHES['violin'], cutoff=2200, osc3_detune=0.92, volume=0.55, pan=-0.6, mod=17),
+    # Viola: a bigger body, so a lower peak and a fuller pulse
+    'viola': dict(lmms2mid.PATCHES['violin'], osc2_wave='wide', cutoff=1800, l_attack=0.1, osc3_detune=1.08,
+                  volume=0.55, pan=0.45, mod=15),
     'cello': dict(osc1_range="8'", osc1_wave='saw', osc2_range="16'", osc2_wave='tri', osc2_level=0.4,
                   osc1_level=0.8, cutoff=600, emphasis=0.1, contour=0.35, kbd=1, f_attack=0.04, f_decay=0.5,
                   f_sustain=0.5, l_attack=0.04, l_decay=0.3, l_sustain=0.85, decay_sw=1, volume=0.7, pan=0.3),
@@ -254,7 +251,7 @@ VEL = {
 }
 # Brighter each time through: cutoff multiplier
 BRIGHT = (1.0, 1.15, 1.3, 1.5)
-VIBRATO_DEPTH = 26          # CC 1, about +/- 0.3 semitones
+VIBRATO_DEPTH = 21          # CC 1, about +/- 20 cents, as measured on a real violin
 D_MAJOR = [1, 2, 4, 6, 7, 9, 11]   # pitch classes
 
 
@@ -274,7 +271,8 @@ def build():
     for name, ch in CH.items():
         p = dict(PATCHES[name])
         p['volume'] *= SONG_LEVEL
-        seq.at(t, demos.patch(ch, **p))
+        mod = p.pop('mod', 0)          # Mod wheel: the inner strings' constant vibrato
+        seq.at(t, demos.patch(ch, **p) + [(0xB0 | ch, 1, mod)])
         t += 0.05
     end_beat = TOTAL_BEATS
 
