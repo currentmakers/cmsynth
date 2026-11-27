@@ -75,7 +75,7 @@ uint8_t const *tud_descriptor_configuration_cb(uint8_t index) {
 static char const *string_desc_arr[] = {
     (const char[]){ 0x09, 0x04 }, // 0: English (US)
     "CurrentMakers",              // 1: Manufacturer
-    "CurrentMakers cmsynth (RP2354)",      // 2: Product (the MIDI port name)
+    "cmsynth (RP2354)",      // 2: Product (the MIDI port name)
     NULL,                         // 3: Serial number, the chip's unique id
 };
 

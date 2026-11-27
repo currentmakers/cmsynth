@@ -11,7 +11,7 @@
 <rect x="235" y="60" width="165" height="92" rx="8" fill="#e3f4e6" stroke="#2f855a" stroke-width="2"/>
 <text x="317.5" y="93.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="15" font-weight="bold" text-anchor="middle" fill="#1a202c" >TinyUSB</text>
 <text x="317.5" y="111.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >USB MIDI device</text>
-<text x="317.5" y="129.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >"CurrentMakers cmsynth"</text>
+<text x="317.5" y="129.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >"cmsynth (MCU)"</text>
 <rect x="450" y="60" width="165" height="92" rx="8" fill="#fdf0dc" stroke="#c27a12" stroke-width="2"/>
 <text x="532.5" y="93.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="15" font-weight="bold" text-anchor="middle" fill="#1a202c" >midi.c</text>
 <text x="532.5" y="111.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#4a5568" >note on/off, CC, bend,</text>

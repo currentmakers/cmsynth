@@ -63,10 +63,11 @@ cycles per block on each of them. The H723 wins on clock speed alone, the
 RP2354 by using both cores. At its rated 150 MHz the RP2354 manages about 21
 voices, the H723 about 37 and the overclocked RP2354 about 45.
 
-Each target shows up with its MCU in the USB name, for example "CurrentMakers
-cmsynth (RP2354)", so you can tell which board is connected. Tools that look
-for "cmsynth" or the start of the name (the web panel, `aplaymidi -p
-"CurrentMakers cmsynth"`) find all of them.
+Each target shows up with its MCU in the USB name (manufacturer
+"CurrentMakers", product "cmsynth (RP2354)", "cmsynth (STM32F407)" or
+"cmsynth (STM32H723)"), so you can tell which board is connected. The MIDI
+port is named after the product; `aplaymidi -p cmsynth` and the web panel
+find all of them.
 
 
 ## Getting the source
@@ -92,7 +93,7 @@ synth was set to.
 On Linux play them with aplaymidi (alsa-utils):
 
     aplaymidi -l                                         # find the synth's port
-    aplaymidi -p "CurrentMakers cmsynth" midi/bass.mid
+    aplaymidi -p cmsynth midi/bass.mid
 
 Elsewhere import them into a DAW and set the MIDI output to "CurrentMakers
 cmsynth". See [midi/README.md](midi/README.md) for details.
@@ -136,7 +137,8 @@ opening `index.html` straight from disk (`file://`) does not work. Serve the
 3. Open http://localhost:8000 in Chrome, Edge or Opera. Firefox works as well
    but first asks you to install a small site permission add-on for MIDI.
 4. Allow MIDI access when the browser asks. The **Synth** dropdown selects
-   "CurrentMakers cmsynth" automatically and the dot next to it turns green.
+   the synth ("cmsynth (RP2354)" and so on) automatically and the dot next to
+   it turns green.
 5. Stop the server with Ctrl+C when done.
 
 If the Synth dropdown stays on "No MIDI output":

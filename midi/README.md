@@ -203,11 +203,11 @@ licences.
 **Linux** (aplaymidi is in the alsa-utils package):
 
     aplaymidi -l                                         # find the synth's port
-    aplaymidi -p "CurrentMakers cmsynth" midi/bass.mid
+    aplaymidi -p cmsynth midi/bass.mid
 
 **Windows, macOS or Linux with a DAW**: import the file into a MIDI track
 (Reaper, Cakewalk, Ableton Live, Logic, ...) and set the track's MIDI output to
-"CurrentMakers cmsynth". Make sure the CCs at the start of the file are sent too,
+"cmsynth (RP2354)" (or STM32F407, STM32H723). Make sure the CCs at the start of the file are sent too,
 some DAWs strip or chase controllers differently.
 
 Recordings of the same demos are in [../samples](../samples).

@@ -98,7 +98,7 @@ def system():
     r1, r2, r3 = 60, 210, 360
 
     s.box(xs[0], r1, W, H, 'Host', ['DAW, aplaymidi,', 'web panel (Web MIDI)'], 'ext')
-    s.box(xs[1], r1, W, H, 'TinyUSB', ['USB MIDI device', '"CurrentMakers cmsynth"'], 'hw')
+    s.box(xs[1], r1, W, H, 'TinyUSB', ['USB MIDI device', '"cmsynth (MCU)"'], 'hw')
     s.box(xs[2], r1, W, H, 'midi.c', ['note on/off, CC, bend,', 'mod wheel, pedal'], 'ctrl')
     s.box(xs[3], r1, W, H, 'params.c', ['CC → patch field,', 'range, curve, 14-bit'], 'ctrl')
     s.box(850, r1, 130, H, 'patches[16]', ['one per MIDI', 'channel'], 'ctrl')

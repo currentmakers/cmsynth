@@ -6,7 +6,7 @@ Streamline blade. The main loop works like the STM32F407 example's, but the
 rendering is split over both cores and the chip is overclocked to 320 MHz,
 which gives 32 voices.
 
-- USB MIDI device (TinyUSB from the Pico SDK), shows up as "CurrentMakers cmsynth (RP2354)"
+- USB MIDI device (TinyUSB from the Pico SDK), shows up as "cmsynth (RP2354)" from CurrentMakers
 - I2S from a PIO state machine fed by two chained DMA channels: 48 kHz, 16 bit
   stereo, 64 frame halves (1.33 ms)
 - 320 MHz system clock with the core voltage raised to 1.30 V (`SYS_CLOCK_KHZ`

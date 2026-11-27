@@ -91,7 +91,7 @@ char const *string_desc_arr[] =
         {
                 (const char[] ) { 0x09, 0x04 }, // 0: Supported Language (0x0409 = English US)
                 "CurrentMakers",               // 1: Manufacturer
-                "CurrentMakers cmsynth (STM32H723)",         // 2: Product Name (Appears in DAW/OS)
+                "cmsynth (STM32H723)",         // 2: Product Name (Appears in DAW/OS)
                 "",                            // 3: Serial Number (Generated dynamically)
         };
 

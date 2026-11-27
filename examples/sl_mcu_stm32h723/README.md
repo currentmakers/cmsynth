@@ -4,7 +4,7 @@ STM32CubeIDE project running cmsynth on an STM32H723VE (Arm Cortex-M7) at
 550 MHz, with audio out through the PCM5102 audio DAC Streamline blade.
 
 - USB MIDI device on USB OTG_HS in full speed mode with the internal PHY
-  (TinyUSB, root port 1), shows up as "CurrentMakers cmsynth (STM32H723)"
+  (TinyUSB, root port 1), shows up as "cmsynth (STM32H723)" from CurrentMakers
 - I2S2 to the PCM5102: 48 kHz, 16 bit stereo, DMA with 64 frame halves
   (1.33 ms)
 - 32 voices; with every voice playing the most expensive patch the synth uses
